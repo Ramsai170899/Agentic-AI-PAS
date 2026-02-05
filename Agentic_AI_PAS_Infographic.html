@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI PAS: The Future of Underwriting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- 
+    Chosen Palette: "Modern Fintech & Trust" 
+    Primary: Deep Navy (#1e293b - slate-800)
+    Secondary: Vibrant Teal (#14b8a6 - teal-500)
+    Accent: Alert Amber (#f59e0b) & Critical Rose (#e11d48)
+    Background: Clean White/Slate (#f8fafc)
+    Rationale: Captures the "professional, data-dense" requirement while offering high contrast for the "infographic" feel.
+    -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate-50 */
+            color: #334155; /* Slate-700 */
+        }
+        
+        /* Chart Container Styling - Mandatory Constraint Compliance */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Constraint: Max width */
+            margin-left: auto;
+            margin-right: auto; /* Constraint: Centered */
+            height: 300px; /* Constraint: Base height */
+            max-height: 400px; /* Constraint: Max height */
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section-header {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            bottom: 10%;
+            width: 6px;
+            background-color: #14b8a6; /* Teal-500 */
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- 
+    Source Material Analysis Plan:
+    1.  **Header/Hook:** Establish the shift from "Passive Admin" to "Active Agentic Partner".
+    2.  **Section 1: The Ecosystem (Organize):** Visualizing the 3-Pane Workspace (Nav, Work, Co-pilot) using CSS Grid blocks.
+    3.  **Section 2: Mission Control (Inform/Compare):** Dashboard metrics showing pipeline health and AI prioritization efficiency. (Charts: Doughnut & Grouped Bar).
+    4.  **Section 3: Intelligent Analysis (Relationships):** How AI detects anomalies (Income vs. Coverage, etc.). (Chart: Scatter/Bubble).
+    5.  **Section 4: Decisioning Simulation (Change/Compare):** The "What-If" scenario modeling for table ratings. (Chart: Line/Area).
+    6.  **Section 5: Governance & Audit (Organize/Process):** The human-in-the-loop validation flow. (CSS Flowchart).
+    -->
+
+    <!-- HEADER SECTION -->
+    <header class="bg-slate-900 text-white pt-16 pb-12 px-6 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 opacity-10 text-9xl font-bold select-none -mr-16 -mt-10">AI</div>
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            <div class="lg:col-span-2">
+                <span class="text-teal-400 font-bold tracking-wider uppercase text-sm mb-2 block">Next-Gen Insurance Tech</span>
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-4">
+                    Agentic AI Policy <br> <span class="text-teal-500">Administration System</span>
+                </h1>
+                <p class="text-slate-300 text-lg md:text-xl max-w-2xl leading-relaxed">
+                    Transforming the underwriting workstation from a passive data entry tool into an intelligent, active partner. 
+                    Experience a system where AI prioritizes work, reasons over complex medical data, and drafts decisions—leaving the final judgment to you.
+                </p>
+            </div>
+            <div class="hidden lg:flex justify-center items-center">
+                <div class="w-48 h-48 rounded-full border-4 border-teal-500/30 flex items-center justify-center relative animate-pulse">
+                    <div class="w-36 h-36 rounded-full bg-teal-600 flex items-center justify-center text-6xl shadow-lg">
+                        🧠
+                    </div>
+                    <div class="absolute -top-4 -right-4 bg-slate-800 text-teal-400 px-4 py-2 rounded-lg font-bold shadow-md border border-slate-700">
+                        Active Reasoning
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: THE THREE-PANE WORKFLOW -->
+    <section class="py-16 px-6 max-w-6xl mx-auto">
+        <div class="mb-12">
+            <h2 class="section-header text-3xl font-bold text-slate-800 mb-4">The Architectural Shift</h2>
+            <p class="text-slate-600 text-lg leading-relaxed max-w-3xl">
+                Traditional PAS interfaces are cluttered and disconnected. The Agentic AI approach reorganizes the experience into three distinct, synergistic panes. This layout ensures the underwriter maintains focus while the AI handles data orchestration and insight generation in the periphery.
+            </p>
+        </div>
+
+        <!-- CSS Grid Diagram: No SVG -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 h-auto md:h-96 text-center font-semibold text-sm md:text-base">
+            <!-- Pane 1: Navigation -->
+            <div class="md:col-span-1 bg-slate-800 text-slate-300 rounded-xl p-6 flex flex-col justify-between shadow-lg border-l-4 border-slate-600 transform transition hover:scale-[1.02]">
+                <div class="text-4xl mb-4">🧭</div>
+                <div>
+                    <h3 class="text-white text-xl font-bold mb-2">1. Orchestration</h3>
+                    <p class="font-normal text-xs md:text-sm opacity-80">Prioritized Workloads & Pipelines</p>
+                </div>
+                <div class="mt-4 bg-slate-700 rounded p-2 text-xs">
+                    Queue Management<br>SLA Monitoring
+                </div>
+            </div>
+
+            <!-- Pane 2: Workspace -->
+            <div class="md:col-span-2 bg-white text-slate-700 rounded-xl p-6 flex flex-col justify-between shadow-lg border-t-4 border-teal-500 relative overflow-hidden transform transition hover:scale-[1.02]">
+                <div class="absolute top-0 right-0 bg-teal-100 text-teal-800 px-3 py-1 text-xs font-bold rounded-bl-lg">Primary Focus</div>
+                <div class="text-4xl mb-4 text-teal-600">📄</div>
+                <div>
+                    <h3 class="text-slate-900 text-xl font-bold mb-2">2. Decision Workspace</h3>
+                    <p class="font-normal text-xs md:text-sm text-slate-500">Deep Case Analysis & Judgment</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="bg-slate-100 rounded p-2 text-xs">Medical History</div>
+                    <div class="bg-slate-100 rounded p-2 text-xs">Financials</div>
+                    <div class="bg-slate-100 rounded p-2 text-xs">Risk Factors</div>
+                    <div class="bg-slate-100 rounded p-2 text-xs">Product Terms</div>
+                </div>
+            </div>
+
+            <!-- Pane 3: AI Co-pilot -->
+            <div class="md:col-span-1 bg-gradient-to-b from-teal-50 to-white text-slate-700 rounded-xl p-6 flex flex-col justify-between shadow-lg border-r-4 border-teal-400 transform transition hover:scale-[1.02]">
+                <div class="text-4xl mb-4">🤖</div>
+                <div>
+                    <h3 class="text-teal-900 text-xl font-bold mb-2">3. Agentic Co-Pilot</h3>
+                    <p class="font-normal text-xs md:text-sm text-slate-500">Active Reasoning & Suggestion</p>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <div class="bg-white border border-teal-200 rounded p-2 text-xs shadow-sm flex items-center">
+                        <span class="text-teal-500 mr-2">●</span> Anomaly Detection
+                    </div>
+                    <div class="bg-white border border-teal-200 rounded p-2 text-xs shadow-sm flex items-center">
+                        <span class="text-teal-500 mr-2">●</span> Draft Decisions
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: MISSION CONTROL DASHBOARD -->
+    <section class="bg-white py-16 px-6 border-y border-slate-200">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-12">
+                <h2 class="section-header text-3xl font-bold text-slate-800 mb-4">Mission Control: Priority & Pipeline</h2>
+                <p class="text-slate-600 text-lg leading-relaxed max-w-3xl">
+                    The dashboard is no longer a static list. AI signals prioritize cases based on urgency, complexity, and SLA risk. The charts below illustrate how the system visualizes the current pipeline volume and the automated triage process, allowing underwriters to focus on high-value interventions.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- CHART 1: Pipeline Status -->
+                <div class="glass-panel rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">Current Case Pipeline Status</h3>
+                    <p class="text-sm text-slate-500 mb-4">Distribution of active applications showing the high volume of straight-through processing vs. complex review.</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="pipelineChart"></canvas>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p class="text-sm text-blue-800">
+                            <strong>Insight:</strong> 45% of cases are in "AI Pre-Check," reducing manual data entry time by an estimated 60%.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CHART 2: Risk Triage -->
+                <div class="glass-panel rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">AI Signal Triage Categories</h3>
+                    <p class="text-sm text-slate-500 mb-4">Volume of cases flagged by the Agentic AI for specific risk anomalies requiring human expertise.</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="riskTriageChart"></canvas>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                        <p class="text-sm text-amber-800">
+                            <strong>Alert:</strong> High volume of "Income Mismatch" flags requires attention. AI has auto-requested 1040 forms for 85% of these.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: INTELLIGENT ANALYSIS & SIMULATION -->
+    <section class="py-16 px-6 max-w-6xl mx-auto">
+        <div class="mb-12">
+            <h2 class="section-header text-3xl font-bold text-slate-800 mb-4">Analysis & Decision Simulation</h2>
+            <p class="text-slate-600 text-lg leading-relaxed max-w-3xl">
+                Within the case workspace, the AI doesn't just display data; it simulates outcomes. The charts below demonstrate the system's capability to model price elasticity and risk placement scenarios (e.g., Table Ratings) in real-time, helping underwriters make profitable, balanced decisions.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Text Content / Key Metrics -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-slate-800 text-white p-6 rounded-xl shadow-lg">
+                    <div class="text-4xl font-bold text-teal-400 mb-1">92%</div>
+                    <div class="text-sm opacity-80 uppercase tracking-wide">Model Confidence</div>
+                    <p class="text-xs mt-2 text-slate-400">AI confidence in recommended rating based on 50k historical cases.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                    <h4 class="font-bold text-slate-800 mb-2">Simulated Scenario</h4>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Comparing the impact of a <strong>Table B</strong> rating vs. a <strong>Flat Extra</strong> for a hazardous avocation (Scuba Diving).
+                    </p>
+                    <ul class="text-sm space-y-2 text-slate-700">
+                        <li class="flex items-center"><span class="text-teal-500 mr-2">✓</span> Client Acceptance Probability</li>
+                        <li class="flex items-center"><span class="text-teal-500 mr-2">✓</span> Reinsurer Alignment</li>
+                        <li class="flex items-center"><span class="text-teal-500 mr-2">✓</span> Margin Impact</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CHART 3: Decision Impact Simulation -->
+            <div class="lg:col-span-2 glass-panel rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">Premium & Placement Probability Simulation</h3>
+                <p class="text-sm text-slate-500 mb-4">Projected annual premium vs. likelihood of applicant accepting the offer across different risk classes.</p>
+                
+                <div class="chart-container">
+                    <canvas id="simulationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: GOVERNANCE & AUDIT TRAIL -->
+    <section class="bg-slate-50 py-16 px-6 border-t border-slate-200">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-12">
+                <h2 class="section-header text-3xl font-bold text-slate-800 mb-4">Transparent Governance Loop</h2>
+                <p class="text-slate-600 text-lg leading-relaxed max-w-3xl">
+                    Trust is paramount. The Agentic AI does not work in a "black box." Every suggestion is backed by an audit trail. The diagram below illustrates the rigorous "Human-in-the-Loop" workflow where AI reasoning is validated, edited, or overridden by the underwriter, creating a continuous feedback learning loop.
+                </p>
+            </div>
+
+            <!-- HTML/CSS Flowchart Construction: No Mermaid/SVG -->
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-slate-200 overflow-x-auto">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 min-w-[600px]">
+                    
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center w-48 text-center group">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-2xl border-2 border-slate-300 group-hover:border-teal-500 transition-colors">
+                            📥
+                        </div>
+                        <h4 class="font-bold text-slate-800 mt-3">1. Data Ingestion</h4>
+                        <p class="text-xs text-slate-500 mt-1">OCR & NLP extraction from unstructured docs.</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="hidden md:block h-1 flex-1 bg-slate-200 mx-2 relative">
+                        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 text-slate-300">▶</div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center w-48 text-center group">
+                        <div class="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center text-2xl border-2 border-teal-200 group-hover:border-teal-500 transition-colors shadow-sm">
+                            ⚙️
+                        </div>
+                        <h4 class="font-bold text-teal-800 mt-3">2. AI Reasoning</h4>
+                        <p class="text-xs text-slate-500 mt-1">Pattern matching & Rule application.</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="hidden md:block h-1 flex-1 bg-slate-200 mx-2 relative">
+                        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 text-slate-300">▶</div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center w-48 text-center group">
+                        <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center text-2xl border-2 border-amber-200 group-hover:border-amber-500 transition-colors shadow-sm relative">
+                            👮
+                            <span class="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">HitL</span>
+                        </div>
+                        <h4 class="font-bold text-amber-800 mt-3">3. Human Review</h4>
+                        <p class="text-xs text-slate-500 mt-1">Validate, Override, or Approve suggestions.</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="hidden md:block h-1 flex-1 bg-slate-200 mx-2 relative">
+                        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 text-slate-300">▶</div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="flex flex-col items-center w-48 text-center group">
+                        <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-2xl border-2 border-slate-600 group-hover:border-teal-400 transition-colors shadow-lg">
+                            📝
+                        </div>
+                        <h4 class="font-bold text-slate-800 mt-3">4. Final Decision</h4>
+                        <p class="text-xs text-slate-500 mt-1">Audit log generated & Policy issued.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-12 px-6 text-center">
+        <div class="max-w-4xl mx-auto">
+            <h3 class="text-white text-2xl font-bold mb-4">Ready to Modernize?</h3>
+            <p class="mb-8">The Agentic AI PAS reduces cycle times, improves risk accuracy, and empowers underwriters to do their best work.</p>
+            <div class="inline-block border-t border-slate-700 pt-6 text-sm">
+                Generated for Policy Administration System Visualization Concept
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA PROCESSING UTILITIES ---
+
+        // 16-Char Label Wrapping Logic (Mandatory)
+        function processLabels(labels) {
+            return labels.map(label => {
+                if (label.length <= 16) return label;
+                
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+
+                for (let i = 1; i < words.length; i++) {
+                    if ((currentLine + ' ' + words[i]).length <= 16) {
+                        currentLine += ' ' + words[i];
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            });
+        }
+
+        // Tooltip Configuration (Mandatory)
+        const commonTooltipConfig = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // Common Chart Options
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: commonTooltipConfig,
+                legend: {
+                    labels: {
+                        font: { family: 'Inter', size: 12 },
+                        color: '#475569' // slate-600
+                    }
+                }
+            }
+        };
+
+        // --- CHART GENERATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // CHART 1: Pipeline Status (Doughnut)
+            // Goal: Inform (Composition of the queue)
+            const ctxPipeline = document.getElementById('pipelineChart').getContext('2d');
+            new Chart(ctxPipeline, {
+                type: 'doughnut',
+                data: {
+                    labels: processLabels(['AI Pre-Check Pending', 'Active Underwriting', 'Evidence Awaiting', 'Final Approval Queue', 'Declined/Closed']),
+                    datasets: [{
+                        data: [45, 20, 15, 12, 8],
+                        backgroundColor: [
+                            '#e2e8f0', // slate-200 (Pre-check)
+                            '#0f172a', // slate-900 (Active - Focus)
+                            '#f59e0b', // amber-500 (Waiting)
+                            '#14b8a6', // teal-500 (Approval)
+                            '#ef4444'  // red-500 (Decline)
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    cutout: '65%',
+                }
+            });
+
+            // CHART 2: Risk Triage (Horizontal Bar)
+            // Goal: Compare (Volume of different risk flags)
+            const ctxRisk = document.getElementById('riskTriageChart').getContext('2d');
+            new Chart(ctxRisk, {
+                type: 'bar',
+                indexAxis: 'y', // Horizontal
+                data: {
+                    labels: processLabels(['Income Discrepancy', 'Medical: Lab Abnormalities', 'Undisclosed Avocation', 'MIB Code Hit', 'Coverage Mismatch']),
+                    datasets: [{
+                        label: 'Flagged Cases',
+                        data: [142, 98, 45, 32, 21],
+                        backgroundColor: '#14b8a6', // Teal
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // CHART 3: Simulation (Line/Bar Combo)
+            // Goal: Compare/Change (Impact of decisions)
+            const ctxSim = document.getElementById('simulationChart').getContext('2d');
+            new Chart(ctxSim, {
+                type: 'bar',
+                data: {
+                    labels: processLabels(['Standard', 'Table B', 'Table D', 'Table F']),
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Annual Premium ($)',
+                            data: [2400, 3100, 4200, 5800],
+                            backgroundColor: '#1e293b', // Navy
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Placement Probability (%)',
+                            data: [95, 88, 65, 40],
+                            borderColor: '#f59e0b', // Amber
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Premium ($)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Probability (%)' }
+                        }
+                    }
+                }
+            });
+        });
+
+    </script>
+
+    <!-- 
+    Application Structure Plan:
+    1.  Header: High-impact title and summary to set the context of "Agentic AI".
+    2.  Section 1 (Architecture): Uses a grid layout to explain the 3-pane UI concept visually without requiring screenshots.
+    3.  Section 2 (Dashboard): Uses Chart.js (Doughnut/Bar) to show the "Mission Control" aspect - managing volume and risk.
+    4.  Section 3 (Analysis): Uses Chart.js (Combo) to show the "Simulation" aspect - the core value add of modern PAS.
+    5.  Section 4 (Governance): Uses a CSS-styled flow diagram to explain the "Human-in-the-loop" trust mechanism.
+    Rationale: This flow moves from Concept -> Operational View -> Deep Analytic Value -> Governance/Trust, a logical sales/explanation cycle for Enterprise Software.
+    -->
+
+    <!-- 
+    Visualization & Content Choices:
+    1.  Grid Layout (Sec 1) -> Goal: Organize -> CSS Grid w/ Icons -> Best for showing UI layout abstractly. NO SVG used.
+    2.  Pipeline Doughnut (Sec 2) -> Goal: Inform -> Chart.js Doughnut -> Quick view of case statuses.
+    3.  Risk Bar Chart (Sec 2) -> Goal: Compare -> Chart.js Horizontal Bar -> Clearly compares frequency of different risk types.
+    4.  Simulation Combo Chart (Sec 3) -> Goal: Relationships -> Chart.js Bar/Line -> Correlates Price (Bar) with Acceptance Probability (Line).
+    5.  Flow Diagram (Sec 4) -> Goal: Process -> HTML/CSS Flexbox -> Shows the sequential audit logic clearly. NO Mermaid used.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</body>
+</html>
