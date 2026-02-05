@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis - Agentic AI Underwriting Workbench</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts: Inter for UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuration & Custom Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            700: '#243b53', // Primary UI elements
+                            800: '#102a43', // Header/Nav
+                            900: '#0a1929', // Darkest accents
+                        },
+                        teal: {
+                            500: '#20c997', // Success/Safe
+                            600: '#0ca678', // Action buttons
+                            700: '#099268',
+                        },
+                        slate: {
+                            50: '#f8fafc', // App Background
+                            200: '#e2e8f0', // Borders
+                            500: '#64748b', // Secondary text
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'float': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar for dense data views */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Chart Container Logic (Mandatory) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 250px; /* Base height */
+            max-height: 300px;
+        }
+
+        /* Utility for dense tables */
+        .dense-cell {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Transition for view switching */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* AI Badge Pulse */
+        .ai-pulse {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(13, 148, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+        }
+    </style>
+
+    <!-- 
+    Placeholder Comments Required:
+    
+    <!-- Chosen Palette: Navy Blue (#102a43), Teal (#0ca678), Neutral Grey (#f8fafc). High contrast for readability, clinical/financial tone. -->
+    
+    <!-- Application Structure Plan: 
+         1. Layout: Fixed Left Navigation (collapsed/icons) + Main Workspace Area + Right Collapsible AI Sidebar.
+         2. Views: 
+            - Dashboard: "Mission Control" for queue management and KPI monitoring.
+            - Case Workspace: The primary working area with tabbed data (Demographics, Medical, Financial) and persistent AI insights.
+            - Decision & Audit: Focused view for final rating, simulations, and explainability.
+         3. Workflow: User starts at Dashboard -> Selects high-priority case -> Reviews data in Workspace (AI flagged) -> Moves to Decision -> Submits.
+         4. Rationale: This structure separates "Prioritization" (Dashboard) from "Analysis" (Workspace) and "Judgment" (Decision), mirroring actual underwriting flows. The persistent AI sidebar ensures assistance is always available without blocking the view.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Dashboard Metrics -> Goal: Inform/Monitor -> Doughnut/Bar Charts (Chart.js) -> Quick view of pipeline health and SLAs.
+         2. Risk Queue -> Goal: Organize/Prioritize -> Interactive Table with "Urgency" badges -> Allows sorting by AI Risk Score.
+         3. Case Data -> Goal: Analyze -> Structured Grids & Collapsible Cards -> Efficient use of screen real estate for dense info.
+         4. AI Co-Pilot -> Goal: Assist/Recommend -> Chat interface + "Insight Cards" -> Differentiates AI suggestions from raw data.
+         5. Risk Simulator -> Goal: Compare/Predict -> Dynamic Slider inputs updates HTML text -> Immediate feedback on rating changes (Table A vs B).
+         6. NO SVG/Mermaid confirmed. Unicode icons used for visual hierarchy.
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    -->
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden selection:bg-teal-100 selection:text-teal-900">
+
+    <!-- LEFT SIDEBAR: Navigation -->
+    <nav class="w-16 md:w-20 bg-navy-800 flex flex-col items-center py-6 shadow-xl z-20 flex-shrink-0">
+        <div class="mb-8 text-teal-500 font-bold text-2xl cursor-default" title="Aegis PAS">▲</div>
+        
+        <!-- Nav Items -->
+        <div class="flex flex-col gap-6 w-full">
+            <button onclick="navigateTo('dashboard')" class="nav-btn group relative w-full h-12 flex justify-center items-center text-slate-400 hover:text-white hover:bg-navy-700 transition-colors border-l-4 border-transparent hover:border-teal-500 active-nav" id="nav-dashboard">
+                <span class="text-xl">📊</span>
+                <span class="absolute left-16 bg-navy-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Dashboard</span>
+            </button>
+            
+            <button onclick="navigateTo('workspace')" class="nav-btn group relative w-full h-12 flex justify-center items-center text-slate-400 hover:text-white hover:bg-navy-700 transition-colors border-l-4 border-transparent hover:border-teal-500" id="nav-workspace">
+                <span class="text-xl">📂</span>
+                <span class="absolute left-16 bg-navy-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Case Workspace</span>
+            </button>
+            
+            <button onclick="navigateTo('decision')" class="nav-btn group relative w-full h-12 flex justify-center items-center text-slate-400 hover:text-white hover:bg-navy-700 transition-colors border-l-4 border-transparent hover:border-teal-500" id="nav-decision">
+                <span class="text-xl">⚖️</span>
+                <span class="absolute left-16 bg-navy-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">Decision & Audit</span>
+            </button>
+        </div>
+
+        <div class="mt-auto flex flex-col gap-4 mb-4">
+             <button class="w-10 h-10 rounded-full bg-navy-700 text-teal-500 font-bold flex items-center justify-center border border-navy-500 shadow-lg">
+                JS
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm z-10">
+            <div class="flex items-center gap-4">
+                <h1 id="page-title" class="text-xl font-bold text-navy-800">Underwriter Dashboard</h1>
+                <div id="case-context" class="hidden flex items-center gap-2 bg-navy-50 px-3 py-1 rounded-full border border-navy-100">
+                    <span class="text-xs text-navy-500 font-semibold uppercase tracking-wider">Current Case:</span>
+                    <span class="text-sm font-bold text-navy-900">APP-2026-8942 • James D. Sterling</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-medium">Underwriting</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200">
+                    <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                    <span>Agentic AI Online</span>
+                </div>
+                <button class="p-2 text-slate-400 hover:text-navy-700 transition">🔔<span class="absolute top-4 right-6 w-2 h-2 bg-rose-500 rounded-full"></span></button>
+            </div>
+        </header>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-6" id="content-area">
+            
+            <!-- ================= VIEW 1: DASHBOARD ================= -->
+            <section id="dashboard" class="view-section active w-full max-w-7xl mx-auto space-y-6">
+                <!-- Dashboard Intro -->
+                <div class="bg-white p-4 rounded-lg border-l-4 border-navy-700 shadow-sm">
+                    <h2 class="font-bold text-navy-800">Mission Control Center</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Overview of current underwriting pipeline, prioritized by AI-driven risk assessment and SLA urgency. 
+                        Use this dashboard to manage your daily queue and monitor team performance metrics.
+                    </p>
+                </div>
+
+                <!-- Metrics Row -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- KPI Card 1 -->
+                    <div class="bg-white p-4 rounded-lg shadow-card border border-slate-200">
+                        <div class="text-xs text-slate-500 uppercase font-semibold">Pending Action</div>
+                        <div class="text-3xl font-bold text-navy-800 mt-1">24</div>
+                        <div class="text-xs text-rose-600 mt-2 font-medium">↑ 3 Urgent (SLA Risk)</div>
+                    </div>
+                    <!-- KPI Card 2 -->
+                    <div class="bg-white p-4 rounded-lg shadow-card border border-slate-200">
+                        <div class="text-xs text-slate-500 uppercase font-semibold">Avg. Cycle Time</div>
+                        <div class="text-3xl font-bold text-navy-800 mt-1">4.2 <span class="text-sm text-slate-400 font-normal">days</span></div>
+                        <div class="text-xs text-teal-600 mt-2 font-medium">↓ 12% vs last week</div>
+                    </div>
+                    <!-- KPI Card 3 -->
+                    <div class="bg-white p-4 rounded-lg shadow-card border border-slate-200">
+                        <div class="text-xs text-slate-500 uppercase font-semibold">Placement Ratio</div>
+                        <div class="text-3xl font-bold text-navy-800 mt-1">78%</div>
+                        <div class="text-xs text-slate-500 mt-2">Target: 75%</div>
+                    </div>
+                    <!-- KPI Card 4 -->
+                    <div class="bg-white p-4 rounded-lg shadow-card border border-slate-200">
+                        <div class="text-xs text-slate-500 uppercase font-semibold">AI Automation Rate</div>
+                        <div class="text-3xl font-bold text-teal-600 mt-1">45%</div>
+                        <div class="text-xs text-slate-500 mt-2">Straight-Through Processing</div>
+                    </div>
+                </div>
+
+                <!-- Charts & Queue Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left: Pipeline Charts -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Chart 1 -->
+                        <div class="bg-white p-4 rounded-lg shadow-card border border-slate-200">
+                            <h3 class="text-sm font-bold text-navy-800 mb-4">Pipeline by Status</h3>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Chart 2 -->
+                         <div class="bg-white p-4 rounded-lg shadow-card border border-slate-200">
+                            <h3 class="text-sm font-bold text-navy-800 mb-4">Risk Class Distribution</h3>
+                            <div class="chart-container h-48">
+                                <canvas id="riskChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Prioritized Queue -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow-card border border-slate-200 flex flex-col">
+                        <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-navy-800">Prioritized Work Queue</h3>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1 text-xs bg-navy-50 text-navy-700 rounded hover:bg-navy-100">Filter: All</button>
+                                <button class="px-3 py-1 text-xs bg-navy-50 text-navy-700 rounded hover:bg-navy-100">Sort: Urgency</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                                    <tr>
+                                        <th class="px-4 py-3">Applicant</th>
+                                        <th class="px-4 py-3">Face Amount</th>
+                                        <th class="px-4 py-3">AI Risk Score</th>
+                                        <th class="px-4 py-3">Key Signals</th>
+                                        <th class="px-4 py-3">Status</th>
+                                        <th class="px-4 py-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <!-- High Priority Item -->
+                                    <tr class="hover:bg-slate-50 group cursor-pointer border-l-4 border-rose-500 bg-rose-50/10">
+                                        <td class="px-4 py-3">
+                                            <div class="font-bold text-navy-800">James D. Sterling</div>
+                                            <div class="text-xs text-slate-500">ID: 8942 • Male, 45</div>
+                                        </td>
+                                        <td class="px-4 py-3 font-medium">$5,000,000</td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-rose-600 font-bold">88/100</span>
+                                                <span class="text-xs text-rose-600 bg-rose-100 px-1 rounded">Complex</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex flex-wrap gap-1">
+                                                <span class="text-xs bg-slate-100 border border-slate-200 px-1.5 rounded text-slate-600">Hypertension</span>
+                                                <span class="text-xs bg-amber-100 border border-amber-200 px-1.5 rounded text-amber-700">Avocation</span>
+                                                <span class="text-xs bg-rose-100 border border-rose-200 px-1.5 rounded text-rose-700">Financial Discrepancy</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3"><span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-medium">Underwriting</span></td>
+                                        <td class="px-4 py-3">
+                                            <button onclick="navigateTo('workspace')" class="bg-navy-700 hover:bg-navy-800 text-white text-xs px-3 py-1.5 rounded shadow-sm transition">Open Case</button>
+                                        </td>
+                                    </tr>
+                                    <!-- Standard Item -->
+                                    <tr class="hover:bg-slate-50 group cursor-pointer border-l-4 border-transparent">
+                                        <td class="px-4 py-3">
+                                            <div class="font-bold text-navy-800">Sarah Jenkins</div>
+                                            <div class="text-xs text-slate-500">ID: 8945 • Female, 32</div>
+                                        </td>
+                                        <td class="px-4 py-3 font-medium">$1,200,000</td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-amber-600 font-bold">45/100</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex flex-wrap gap-1">
+                                                <span class="text-xs bg-slate-100 border border-slate-200 px-1.5 rounded text-slate-600">BMI > 30</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3"><span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-medium">Evidence Review</span></td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-navy-600 hover:underline text-xs font-medium">Review</button>
+                                        </td>
+                                    </tr>
+                                    <!-- Low Risk Item -->
+                                    <tr class="hover:bg-slate-50 group cursor-pointer border-l-4 border-teal-500">
+                                        <td class="px-4 py-3">
+                                            <div class="font-bold text-navy-800">Michael Ross</div>
+                                            <div class="text-xs text-slate-500">ID: 8948 • Male, 28</div>
+                                        </td>
+                                        <td class="px-4 py-3 font-medium">$500,000</td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-teal-600 font-bold">12/100</span>
+                                                <span class="text-xs text-teal-600 bg-teal-50 px-1 rounded">Fast Track</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="text-xs text-slate-400 italic">No significant flags</span>
+                                        </td>
+                                        <td class="px-4 py-3"><span class="px-2 py-0.5 bg-teal-50 text-teal-700 rounded text-xs font-medium">Ready</span></td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-navy-600 hover:underline text-xs font-medium">Approve</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= VIEW 2: CASE WORKSPACE ================= -->
+            <section id="workspace" class="view-section w-full max-w-full h-full flex gap-4">
+                
+                <!-- Center: Case Details -->
+                <div class="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 pb-20">
+                    
+                    <!-- Intro for Section -->
+                    <div class="bg-white p-3 rounded border border-slate-200 text-sm text-slate-600 flex justify-between items-center">
+                        <p><strong>Case Analysis:</strong> Review structured application data derived from submitted evidence. AI has highlighted data inconsistencies and medical impairments.</p>
+                        <div class="flex gap-2">
+                            <button class="text-xs bg-white border border-slate-300 px-2 py-1 rounded hover:bg-slate-50">View Documents</button>
+                            <button class="text-xs bg-white border border-slate-300 px-2 py-1 rounded hover:bg-slate-50">History</button>
+                        </div>
+                    </div>
+
+                    <!-- Applicant Header -->
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 flex justify-between items-start">
+                        <div class="flex gap-4">
+                            <div class="w-16 h-16 bg-navy-100 rounded-full flex items-center justify-center text-2xl text-navy-700 font-bold">JD</div>
+                            <div>
+                                <h2 class="text-xl font-bold text-navy-900">James Daniel Sterling</h2>
+                                <div class="text-sm text-slate-500 mt-1 grid grid-cols-2 gap-x-6 gap-y-1">
+                                    <span><strong>DOB:</strong> 12 Oct 1980 (Age 45)</span>
+                                    <span><strong>Occupation:</strong> Hedge Fund Manager</span>
+                                    <span><strong>Residence:</strong> Connecticut, USA</span>
+                                    <span><strong>Income:</strong> $850k/yr (Verified)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-slate-400">Target Premium</div>
+                            <div class="text-2xl font-bold text-navy-800">$24,500<span class="text-sm font-normal text-slate-500">/yr</span></div>
+                            <div class="text-xs text-teal-600 font-medium">Term Life • 20 Years</div>
+                        </div>
+                    </div>
+
+                    <!-- Data Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Medical Data -->
+                        <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                            <div class="bg-navy-50 px-4 py-3 border-b border-navy-100 flex justify-between items-center">
+                                <h3 class="font-bold text-navy-800 flex items-center gap-2">⚕️ Medical History</h3>
+                                <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">2 Flags</span>
+                            </div>
+                            <div class="p-4 space-y-4">
+                                <div class="flex justify-between items-center p-2 bg-slate-50 rounded border border-slate-100">
+                                    <div>
+                                        <div class="text-xs text-slate-500 uppercase">Primary Impairment</div>
+                                        <div class="font-medium text-navy-900">Hypertension (I10)</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500">Onset</div>
+                                        <div class="font-medium">2019</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <div class="text-xs font-semibold text-slate-500 uppercase">Recent Vitals (Paramed 01/24)</div>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="p-2 border border-slate-200 rounded text-center">
+                                            <div class="text-xs text-slate-400">BP</div>
+                                            <div class="font-bold text-amber-600">145/92</div>
+                                        </div>
+                                        <div class="p-2 border border-slate-200 rounded text-center">
+                                            <div class="text-xs text-slate-400">BMI</div>
+                                            <div class="font-bold text-slate-700">28.4</div>
+                                        </div>
+                                        <div class="p-2 border border-slate-200 rounded text-center">
+                                            <div class="text-xs text-slate-400">Cholesterol</div>
+                                            <div class="font-bold text-slate-700">210</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100 mt-2">
+                                        ⚠️ <strong>AI Note:</strong> BP reading elevated compared to 2023 APS average (130/85). Medication non-compliance suspected.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Data -->
+                        <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                            <div class="bg-navy-50 px-4 py-3 border-b border-navy-100 flex justify-between items-center">
+                                <h3 class="font-bold text-navy-800 flex items-center gap-2">💰 Financial Justification</h3>
+                                <span class="text-xs bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full font-bold">Discrepancy</span>
+                            </div>
+                            <div class="p-4 space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-xs text-slate-500">Reported Net Worth</div>
+                                        <div class="font-bold text-navy-900">$12,500,000</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-500">Verified Liquid Assets</div>
+                                        <div class="font-bold text-navy-900">$4,200,000</div>
+                                    </div>
+                                </div>
+                                <div class="bg-rose-50 border border-rose-200 rounded p-3 text-sm text-rose-800">
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg">⚠️</span>
+                                        <div>
+                                            <strong>Income Mismatch:</strong>
+                                            <p class="text-xs mt-1">Application states $850k/yr. Tax transcript extraction (Form 1040) indicates $620k/yr AGI for 2024.</p>
+                                        </div>
+                                    </div>
+                                    <button class="mt-2 text-xs bg-white border border-rose-300 text-rose-700 px-2 py-1 rounded shadow-sm hover:bg-rose-50">View Source Documents</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle & Avocation -->
+                        <div class="bg-white rounded-lg shadow-sm border border-slate-200 col-span-1 md:col-span-2">
+                            <div class="bg-navy-50 px-4 py-3 border-b border-navy-100 flex justify-between items-center">
+                                <h3 class="font-bold text-navy-800 flex items-center gap-2">🪂 Avocations & Lifestyle</h3>
+                                <span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold">Review</span>
+                            </div>
+                            <div class="p-4 flex gap-6">
+                                <div class="flex-1">
+                                    <div class="text-sm font-semibold text-navy-800 mb-2">Scuba Diving</div>
+                                    <p class="text-sm text-slate-600">PADI Advanced Open Water certified. Reports 10 dives/year, max depth 100ft. No caves/wrecks reported.</p>
+                                </div>
+                                <div class="w-px bg-slate-200"></div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-semibold text-navy-800 mb-2">Foreign Travel</div>
+                                    <p class="text-sm text-slate-600">Planned travel to Kenya (Game Reserve) in Q4 2026. 2 weeks duration.</p>
+                                </div>
+                                <div class="w-px bg-slate-200"></div>
+                                <div class="flex-1 bg-teal-50 border border-teal-100 p-2 rounded">
+                                    <div class="text-xs font-bold text-teal-700 mb-1">AI Recommendation</div>
+                                    <p class="text-xs text-teal-900">Standard rates applicable for diving profile. Kenya travel is currently acceptable (No State Dept warning).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDEBAR: AI AGENT -->
+                <aside class="w-96 bg-white border-l border-slate-200 flex flex-col shadow-xl z-20 h-full pb-20">
+                    <div class="p-4 border-b border-slate-200 bg-navy-900 text-white flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold flex items-center gap-2">⚡ Agentic Co-Pilot</h3>
+                            <span class="text-xs text-navy-200">Processing real-time logic...</span>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></div>
+                    </div>
+
+                    <!-- Scrollable Chat/Feed -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                        
+                        <!-- AI Message 1 -->
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AI</div>
+                            <div class="space-y-2 max-w-[85%]">
+                                <div class="bg-white p-3 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-sm border border-slate-200 text-sm text-slate-700">
+                                    I've analyzed the application against the 2026 Underwriting Guidelines. 
+                                    <br><br>
+                                    <strong>Risk Score: 88 (Elevated)</strong>
+                                    <br>
+                                    Primary drivers are the hypertension history and the income discrepancy.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Card -->
+                        <div class="ml-11 bg-white border border-rose-200 rounded-lg shadow-sm overflow-hidden">
+                            <div class="bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 border-b border-rose-100 flex justify-between">
+                                <span> ACTION REQUIRED</span>
+                                <span>⚠️ High Conf.</span>
+                            </div>
+                            <div class="p-3">
+                                <p class="text-sm text-slate-800 mb-2 font-medium">Income Verification Gap</p>
+                                <p class="text-xs text-slate-500 mb-3">Reported $850k vs Tax $620k. The gap exceeds the 20% tolerance threshold.</p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-white border border-slate-300 text-slate-700 text-xs py-1.5 rounded hover:bg-slate-50">Ignore (Note)</button>
+                                    <button class="flex-1 bg-navy-700 text-white text-xs py-1.5 rounded hover:bg-navy-800">Draft Query</button>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- AI Message 2 -->
+                         <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AI</div>
+                            <div class="space-y-2 max-w-[85%]">
+                                <div class="bg-white p-3 rounded-tr-lg rounded-br-lg rounded-bl-lg shadow-sm border border-slate-200 text-sm text-slate-700">
+                                    Based on the elevated BP (145/92) and age, standard guidelines suggest a <strong>Table B</strong> rating. 
+                                    <br><br>
+                                    However, his control has been good historically. Do you want to order an APS to confirm if this is "white coat" syndrome?
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-200 hover:bg-teal-100">Yes, Order APS</button>
+                                    <button class="px-3 py-1 bg-slate-100 text-slate-600 text-xs rounded-full border border-slate-200 hover:bg-slate-200">No, Rate Table B</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="p-3 bg-white border-t border-slate-200">
+                        <div class="relative">
+                            <input type="text" placeholder="Ask Co-pilot or command action..." class="w-full pl-4 pr-10 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:border-navy-500 focus:ring-1 focus:ring-navy-500">
+                            <button class="absolute right-2 top-2 text-slate-400 hover:text-teal-600">➤</button>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+
+             <!-- ================= VIEW 3: DECISION & AUDIT ================= -->
+             <section id="decision" class="view-section w-full max-w-5xl mx-auto space-y-6 pb-20">
+                <!-- Section Intro -->
+                <div class="bg-white p-4 rounded-lg border-l-4 border-teal-500 shadow-sm mb-6">
+                    <h2 class="font-bold text-navy-800">Decision Workbench</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Finalize risk classification and premium structure. AI provides simulation of rating impacts and generates audit-ready rationale.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left: Decision Controls -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- Simulation Panel -->
+                        <div class="bg-white rounded-lg shadow-card border border-slate-200 p-6">
+                            <h3 class="text-lg font-bold text-navy-900 mb-4">Risk Classification & Loading</h3>
+                            
+                            <!-- Rating Slider -->
+                            <div class="mb-8">
+                                <div class="flex justify-between mb-2">
+                                    <label class="text-sm font-medium text-slate-700">Health Class / Table Rating</label>
+                                    <span id="rating-label" class="text-sm font-bold text-teal-700">Standard Plus (Table B)</span>
+                                </div>
+                                <input type="range" min="0" max="8" value="2" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600" id="ratingSlider" oninput="updatePremium()">
+                                <div class="flex justify-between text-xs text-slate-400 mt-2 px-1">
+                                    <span>Preferred</span>
+                                    <span>Standard</span>
+                                    <span>Table B</span>
+                                    <span>Table D</span>
+                                    <span>Table H</span>
+                                </div>
+                            </div>
+
+                            <!-- Extras -->
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Flat Extra ($/1k)</label>
+                                    <input type="number" value="2.50" class="w-full p-2 border border-slate-300 rounded text-sm">
+                                    <p class="text-xs text-slate-500 mt-1">Applied for Scuba Diving (Depth > 75ft)</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Exclusions</label>
+                                    <select class="w-full p-2 border border-slate-300 rounded text-sm bg-white">
+                                        <option>None</option>
+                                        <option>Aviation Exclusion Rider</option>
+                                        <option>Avocation Exclusion</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Final Calculations -->
+                            <div class="bg-navy-50 p-4 rounded border border-navy-100 flex justify-between items-end">
+                                <div>
+                                    <p class="text-sm text-navy-600">Total Annual Premium</p>
+                                    <p class="text-3xl font-bold text-navy-900" id="premium-display">$28,150.00</p>
+                                    <p class="text-xs text-teal-600 mt-1">Safe • Reinsurance Limit OK</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-500 mb-1">Impact vs Quoted</p>
+                                    <span class="text-sm font-bold text-rose-600">+ $3,650 /yr</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rationale Editor -->
+                        <div class="bg-white rounded-lg shadow-card border border-slate-200 p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-navy-900">Decision Rationale</h3>
+                                <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded">AI Drafted</span>
+                            </div>
+                            <textarea class="w-full h-32 p-3 border border-slate-300 rounded text-sm text-slate-700 focus:ring-2 focus:ring-teal-500 focus:border-transparent leading-relaxed" id="rationaleText">
+Primary impairment is Hypertension (I10), currently controlled but with recent elevation (145/92). Applicant meets criteria for Table B rating due to combination of BP history and BMI (28.4). 
+Financial underwriting accepts $5M face amount despite income discrepancy, based on verified net worth and secondary asset liquidity.
+Flat extra of $2.50/1k applied for 3 years due to Scuba activity exceeding 100ft recreational limit.
+                            </textarea>
+                            <div class="flex justify-end gap-3 mt-4">
+                                <button class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50 font-medium">Postpone</button>
+                                <button class="px-4 py-2 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded hover:bg-rose-100 font-medium">Decline</button>
+                                <button class="px-6 py-2 bg-navy-800 text-white text-sm rounded shadow-md hover:bg-navy-900 font-bold flex items-center gap-2">
+                                    <span>✓ Approve Case</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: AI Audit Trail -->
+                    <div class="lg:col-span-1 bg-white rounded-lg shadow-card border border-slate-200 p-0 overflow-hidden flex flex-col h-full">
+                        <div class="p-4 border-b border-slate-100 bg-slate-50">
+                            <h3 class="font-bold text-navy-800 text-sm">AI Logic Audit Trail</h3>
+                        </div>
+                        <div class="p-4 space-y-6 overflow-y-auto flex-1 text-sm">
+                            
+                            <!-- Timeline Item -->
+                            <div class="relative pl-6 border-l-2 border-slate-200 pb-2">
+                                <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-slate-400"></div>
+                                <div class="text-xs text-slate-400 mb-1">Today, 09:15 AM</div>
+                                <p class="text-slate-700"><strong>Data Ingestion:</strong> Extracted 45 data points from Paramed Exam and APS.</p>
+                            </div>
+                            
+                            <!-- Timeline Item -->
+                            <div class="relative pl-6 border-l-2 border-slate-200 pb-2">
+                                <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-teal-500"></div>
+                                <div class="text-xs text-slate-400 mb-1">Today, 09:16 AM</div>
+                                <p class="text-slate-700"><strong>Rule Trigger:</strong> BP > 140/90 triggers mandatory rating assessment per Guidelines Section 4.2.</p>
+                            </div>
+
+                            <!-- Timeline Item -->
+                            <div class="relative pl-6 border-l-2 border-slate-200 pb-2">
+                                <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-rose-500"></div>
+                                <div class="text-xs text-slate-400 mb-1">Today, 09:16 AM</div>
+                                <p class="text-slate-700"><strong>Discrepancy Flag:</strong> Income Variance (Tax vs App) detected. Confidence: 98%.</p>
+                            </div>
+
+                            <!-- Timeline Item -->
+                            <div class="relative pl-6 border-l-2 border-transparent">
+                                <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-navy-600"></div>
+                                <div class="text-xs text-slate-400 mb-1">Now</div>
+                                <p class="text-slate-700"><strong>Recommendation:</strong> Approval with Table B + Flat Extra. Profitability margin: 12%.</p>
+                            </div>
+
+                        </div>
+                        <div class="p-4 bg-slate-50 border-t border-slate-200">
+                             <div class="text-xs font-bold text-slate-500 mb-2">FEEDBACK LOOP</div>
+                             <p class="text-xs text-slate-600 mb-2">Do you agree with the AI's Table B assessment?</p>
+                             <div class="flex gap-2">
+                                 <button class="flex-1 py-1 bg-white border border-slate-300 rounded text-xs hover:border-teal-500 hover:text-teal-600">👍 Yes</button>
+                                 <button class="flex-1 py-1 bg-white border border-slate-300 rounded text-xs hover:border-rose-500 hover:text-rose-600">👎 No</button>
+                             </div>
+                        </div>
+                    </div>
+
+                </div>
+             </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        let currentState = {
+            view: 'dashboard',
+            caseRating: 2, // 0=Pref, 2=Table B
+            basePremium: 24500
+        };
+
+        // Navigation Function
+        function navigateTo(viewId) {
+            // Update State
+            currentState.view = viewId;
+
+            // Hide all sections
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show target section
+            document.getElementById(viewId).classList.add('active');
+
+            // Update Nav Styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-white', 'bg-navy-700', 'border-teal-500', 'active-nav');
+                btn.classList.add('text-slate-400', 'border-transparent');
+            });
+            const activeBtn = document.getElementById(`nav-${viewId}`);
+            activeBtn.classList.add('text-white', 'bg-navy-700', 'border-teal-500', 'active-nav');
+            activeBtn.classList.remove('text-slate-400', 'border-transparent');
+
+            // Context Header Logic
+            const headerTitle = document.getElementById('page-title');
+            const caseContext = document.getElementById('case-context');
+            
+            if(viewId === 'dashboard') {
+                headerTitle.innerText = "Underwriter Dashboard";
+                caseContext.classList.add('hidden');
+            } else if(viewId === 'workspace') {
+                headerTitle.innerText = "Case Workspace";
+                caseContext.classList.remove('hidden');
+            } else {
+                headerTitle.innerText = "Decision & Audit";
+                caseContext.classList.remove('hidden');
+            }
+        }
+
+        // Premium Calculator Logic
+        function updatePremium() {
+            const slider = document.getElementById('ratingSlider');
+            const display = document.getElementById('premium-display');
+            const label = document.getElementById('rating-label');
+            const val = parseInt(slider.value);
+
+            let multiplier = 1.0;
+            let ratingText = "Standard";
+
+            switch(val) {
+                case 0: multiplier = 0.8; ratingText = "Preferred Best"; break;
+                case 1: multiplier = 0.9; ratingText = "Preferred"; break;
+                case 2: multiplier = 1.25; ratingText = "Standard Plus (Table B)"; break; // Default
+                case 3: multiplier = 1.5; ratingText = "Table C"; break;
+                case 4: multiplier = 1.75; ratingText = "Table D"; break;
+                case 5: multiplier = 2.0; ratingText = "Table E"; break;
+                case 6: multiplier = 2.25; ratingText = "Table F"; break;
+                case 7: multiplier = 2.5; ratingText = "Table G"; break;
+                case 8: multiplier = 3.0; ratingText = "Table H"; break;
+            }
+
+            // Calc with flat extra logic simulated (add fixed 2.5k)
+            const calculated = (currentState.basePremium * multiplier) + 2500; // Adding extra
+            
+            // Animate number change slightly
+            display.style.opacity = '0.5';
+            setTimeout(() => {
+                display.innerText = '$' + calculated.toLocaleString('en-US', {minimumFractionDigits: 2});
+                label.innerText = ratingText;
+                display.style.opacity = '1';
+                
+                // Update Rationale Text based on rating
+                const textArea = document.getElementById('rationaleText');
+                if (val > 4) {
+                    textArea.value = textArea.value.replace(/Table [A-H]/g, ratingText).replace("Standard Plus", ratingText);
+                    textArea.value += "\nNote: Higher rating applied due to simulated risk adjustment.";
+                }
+            }, 100);
+        }
+
+        // Chart Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Chart 1: Pipeline Status (Doughnut)
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Evidence Review', 'Underwriting', 'Approved', 'Pending Issue'],
+                    datasets: [{
+                        data: [12, 8, 45, 5],
+                        backgroundColor: ['#e2e8f0', '#243b53', '#20c997', '#f59f00'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 10, font: {size: 11} } }
+                    }
+                }
+            });
+
+            // Chart 2: Risk Distribution (Bar)
+            const ctxRisk = document.getElementById('riskChart').getContext('2d');
+            new Chart(ctxRisk, {
+                type: 'bar',
+                data: {
+                    labels: ['Pref', 'Std', 'Table B-D', 'Table E+', 'Decline'],
+                    datasets: [{
+                        label: 'Cases this Week',
+                        data: [30, 45, 15, 5, 2],
+                        backgroundColor: '#243b53',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+        });
+
+    </script>
+</body>
+</html>
