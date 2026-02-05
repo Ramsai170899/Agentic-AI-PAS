@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI PAS Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0f18;
+            color: #e2e8f0;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .step-active {
+            background: rgba(20, 184, 166, 0.05);
+            border-color: rgba(20, 184, 166, 0.4);
+            box-shadow: 0 0 20px rgba(20, 184, 166, 0.1);
+        }
+
+        .ai-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(20, 184, 166, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(20, 184, 166, 0.5); }
+        }
+
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        .scanning-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #14b8a6, transparent);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+    <div class="h-screen flex flex-col p-6">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-teal-500 p-2.5 rounded-xl shadow-lg shadow-teal-500/20">
+                    <i data-lucide="activity" class="text-white w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">AGENTIC PAS WORKFLOW</h1>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-semibold">Core Underwriting Engine v4.2</span>
+                        <span class="px-2 py-0.5 bg-teal-500/10 text-teal-400 text-[10px] rounded border border-teal-500/20">Production-Ready</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-6 items-center">
+                <div class="text-right hidden md:block">
+                    <div class="text-[10px] text-slate-500 uppercase font-bold">System Status</div>
+                    <div class="flex items-center gap-2 justify-end">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span class="text-xs font-medium text-slate-300">Neural Agents Online</span>
+                    </div>
+                </div>
+                <div class="h-10 w-[1px] bg-slate-800"></div>
+                <button class="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 grid grid-cols-12 gap-6 min-h-0">
+            
+            <!-- Left Panel: Pipeline Navigation -->
+            <aside class="col-span-3 flex flex-col gap-4 overflow-y-auto pr-2 terminal-scroll">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest px-2 mb-2 flex justify-between items-center">
+                    Agent Pipeline
+                    <span id="step-indicator" class="text-teal-500">Step 1/5</span>
+                </h3>
+                
+                <div id="pipeline-container" class="space-y-3">
+                    <!-- Steps will be injected here via JS -->
+                </div>
+            </aside>
+
+            <!-- Center Panel: The Decision Hub -->
+            <section class="col-span-6 flex flex-col glass rounded-3xl border border-slate-800 relative overflow-hidden">
+                <!-- Status Bar -->
+                <div class="px-6 py-4 border-b border-slate-800 bg-slate-900/40 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="p-1.5 bg-teal-500/20 rounded-md">
+                            <i data-lucide="zap" class="w-4 h-4 text-teal-400"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-white block">CASE #LI-9823-X</span>
+                            <span class="text-[10px] text-slate-400">Applicant: Jonathan D. | Face Amount: $2,500,000</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex -space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-[8px] font-bold">AI</div>
+                            <div class="w-6 h-6 rounded-full bg-teal-600 border-2 border-slate-900 flex items-center justify-center text-[8px] font-bold">RC</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Simulation Content -->
+                <div id="simulation-viewport" class="flex-1 flex flex-col items-center justify-center p-8 text-center overflow-y-auto">
+                    <!-- Dynamic content injected here -->
+                </div>
+
+                <!-- Footer Console -->
+                <div class="h-40 bg-black/60 border-t border-slate-800 p-4 font-mono">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Neural Execution Stream</span>
+                        </div>
+                        <span class="text-[9px] text-slate-600">v4.2.0-secure</span>
+                    </div>
+                    <div id="log-stream" class="space-y-1 overflow-y-auto h-24 text-[11px] terminal-scroll">
+                        <!-- Logs injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Governance & Context -->
+            <aside class="col-span-3 space-y-6 flex flex-col">
+                <!-- Metrics -->
+                <div class="glass p-5 rounded-2xl border border-slate-800">
+                    <h4 class="text-[11px] font-bold text-slate-500 uppercase mb-5 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-teal-500"></i>
+                        Explainability Matrix
+                    </h4>
+                    <div class="space-y-5">
+                        <div class="group">
+                            <div class="flex justify-between text-[11px] mb-2 text-slate-300">
+                                <span>Logic Transparency</span>
+                                <span class="font-bold text-teal-400">98.4%</span>
+                            </div>
+                            <div class="h-1.5 bg-slate-800 rounded-full">
+                                <div class="h-full bg-teal-500 rounded-full shadow-[0_0_8px_rgba(20,184,166,0.5)]" style="width: 98%"></div>
+                            </div>
+                        </div>
+                        <div class="group">
+                            <div class="flex justify-between text-[11px] mb-2 text-slate-300">
+                                <span>Regulatory Alignment</span>
+                                <span class="font-bold text-teal-400">100%</span>
+                            </div>
+                            <div class="h-1.5 bg-slate-800 rounded-full">
+                                <div class="h-full bg-teal-500 rounded-full shadow-[0_0_8px_rgba(20,184,166,0.5)]" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="group">
+                            <div class="flex justify-between text-[11px] mb-2 text-slate-300">
+                                <span>Bias Neutrality Index</span>
+                                <span class="font-bold text-blue-400">Protected</span>
+                            </div>
+                            <div class="h-1.5 bg-slate-800 rounded-full">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: 92%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaborative Context -->
+                <div class="glass p-5 rounded-2xl border border-slate-800 flex-1">
+                    <h4 class="text-[11px] font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-teal-500"></i>
+                        Decision Ownership
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-teal-500/20 flex items-center justify-center">
+                                <i data-lucide="brain" class="w-4 h-4 text-teal-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] font-bold text-white">Agent Recommendation</p>
+                                <p id="ai-status-text" class="text-[9px] text-slate-500">Processing signals...</p>
+                            </div>
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-slate-700" id="ai-check"></i>
+                        </div>
+                        
+                        <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center gap-3 opacity-50" id="human-card">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">
+                                RC
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] font-bold text-white">Human Signature</p>
+                                <p class="text-[9px] text-slate-500">Sr. Underwriter R. Chen</p>
+                            </div>
+                            <div class="text-[8px] font-bold text-slate-600">PENDING</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-yellow-500/5 rounded-xl border border-yellow-500/10">
+                        <p class="text-[10px] text-yellow-500/80 leading-relaxed italic">
+                            "Agentic AI acts as a decision support mechanism. All final risk classifications require human verification per Corporate Governance Policy G-14."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-6 flex justify-between items-center text-[10px] text-slate-600 border-t border-slate-800 pt-4 px-2">
+            <div class="flex gap-6">
+                <span>Environment: <span class="text-slate-400">SECURE_SANDBOX</span></span>
+                <span>Audit Key: <span class="text-slate-400 mono">F92-0923-45A-BETA</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <i data-lucide="shield" class="w-3 h-3"></i>
+                <span>Compliant with HIPAA, GDPR & NAIC 2024 Frameworks</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Workflow Configuration
+        const workflowSteps = [
+            {
+                id: 'ingestion',
+                title: 'Data Ingestion & Extraction',
+                icon: 'database',
+                description: 'Parsing APS, LabCorp reports, and MVR data.',
+                action: 'Neural Extraction: Mapping clinical entities from unstructured PDF...',
+                longDesc: 'The agent is currently extracting 142 distinct health and lifestyle parameters from 3 primary documents. Normalizing medical terminology to ICD-10 standards.'
+            },
+            {
+                id: 'reasoning',
+                title: 'Agentic Reasoning',
+                icon: 'brain',
+                description: 'Cross-document discrepancy detection.',
+                action: 'Analyzing temporal trends in hypertensive episodes...',
+                longDesc: 'System identified a discrepancy between declared non-smoker status and Cotinine levels found in lab results from Oct 2023.'
+            },
+            {
+                id: 'augmentation',
+                title: 'Evidence Augmentation',
+                icon: 'search',
+                description: 'MIB & Reinsurance lookup automation.',
+                action: 'Querying Munich Re automated underwriting treaty...',
+                longDesc: 'Retrieving external pharmaceutical history and checking face amount thresholds against automated binding limits.'
+            },
+            {
+                id: 'recommendation',
+                title: 'Risk Simulation',
+                icon: 'zap',
+                description: 'Simulation of rating impacts and mortality.',
+                action: 'Projecting mortality curves for Table B (Standard)...',
+                longDesc: 'Generated risk classification recommendation: Table B (+50%). Narrative rationale prepared for underwriter review.'
+            },
+            {
+                id: 'human',
+                title: 'Human Adjudication',
+                icon: 'shield-check',
+                description: 'Final human judgment and signature.',
+                action: 'Awaiting human override or approval...',
+                longDesc: 'AI Agent has completed its cycle. Case package is ready for final adjudication by Robert Chen.'
+            }
+        ];
+
+        let currentStep = 0;
+        let isProcessing = false;
+
+        const pipelineContainer = document.getElementById('pipeline-container');
+        const viewport = document.getElementById('simulation-viewport');
+        const logStream = document.getElementById('log-stream');
+        const stepIndicator = document.getElementById('step-indicator');
+
+        // Initialize UI
+        function init() {
+            renderPipeline();
+            renderSimulation();
+            addLog('System initialized. Awaiting case input...', 'info');
+            lucide.createIcons();
+        }
+
+        function renderPipeline() {
+            pipelineContainer.innerHTML = workflowSteps.map((step, idx) => `
+                <div class="relative p-4 rounded-2xl border transition-all duration-500 cursor-pointer step-card 
+                    ${currentStep === idx ? 'step-active border-teal-500/50 bg-slate-900/50 shadow-lg' : 
+                      currentStep > idx ? 'border-slate-800 opacity-60' : 'border-slate-800 opacity-30'}">
+                    <div class="flex items-start gap-4">
+                        <div class="mt-1 p-2 rounded-lg transition-colors ${currentStep === idx ? 'bg-teal-500 text-white ai-glow' : 'bg-slate-800 text-slate-500'}">
+                            <i data-lucide="${step.icon}" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold ${currentStep === idx ? 'text-white' : 'text-slate-400'}">${step.title}</h4>
+                            <p class="text-[10px] text-slate-500 mt-1 leading-relaxed">${step.description}</p>
+                        </div>
+                    </div>
+                    ${idx < workflowSteps.length - 1 ? `
+                        <div class="absolute left-8 -bottom-4 w-[1px] h-4 ${currentStep > idx ? 'bg-teal-500' : 'bg-slate-800'}"></div>
+                    ` : ''}
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderSimulation() {
+            if (isProcessing) {
+                viewport.innerHTML = `
+                    <div class="space-y-8 animate-pulse">
+                        <div class="relative inline-block">
+                            <div class="w-32 h-32 rounded-full border-4 border-teal-500/20 border-t-teal-500 animate-spin"></div>
+                            <div class="absolute inset-0 m-auto w-12 h-12 flex items-center justify-center text-teal-400">
+                                <i data-lucide="brain" class="w-10 h-10"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <h2 class="text-xl font-bold text-white tracking-tight">${workflowSteps[currentStep].action}</h2>
+                            <p class="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">Agent is cross-referencing semantic nodes against historical risk models...</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                renderStepContent();
+            }
+            lucide.createIcons();
+        }
+
+        function renderStepContent() {
+            const step = workflowSteps[currentStep];
+            let innerHTML = '';
+
+            switch(currentStep) {
+                case 0:
+                    innerHTML = `
+                        <div class="w-full max-w-xl space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="glass p-5 rounded-2xl border border-slate-800 text-left relative overflow-hidden group">
+                                    <div class="scanning-line"></div>
+                                    <i data-lucide="file-text" class="text-teal-400 mb-3 w-6 h-6"></i>
+                                    <div class="text-xs font-bold text-white mb-1">APS_RECORD_SCAN</div>
+                                    <div class="text-[10px] text-slate-500 font-mono">142 Entities Parsed</div>
+                                    <div class="mt-4 h-1 bg-slate-800 rounded-full"><div class="h-full bg-teal-500 w-full rounded-full"></div></div>
+                                </div>
+                                <div class="glass p-5 rounded-2xl border border-slate-800 text-left relative overflow-hidden">
+                                    <div class="scanning-line" style="animation-delay: 1s"></div>
+                                    <i data-lucide="bar-chart-3" class="text-blue-400 mb-3 w-6 h-6"></i>
+                                    <div class="text-xs font-bold text-white mb-1">LAB_TREND_ANALYSIS</div>
+                                    <div class="text-[10px] text-slate-500 font-mono">Biometric Mapping OK</div>
+                                    <div class="mt-4 h-1 bg-slate-800 rounded-full"><div class="h-full bg-blue-500 w-full rounded-full"></div></div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-400">${step.longDesc}</p>
+                            <button onclick="nextStep()" class="mt-6 px-10 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-teal-600/20 active:scale-95">Initiate Reasoning Cycle</button>
+                        </div>
+                    `;
+                    break;
+                case 1:
+                    innerHTML = `
+                        <div class="w-full max-w-xl bg-yellow-500/5 border border-yellow-500/20 p-8 rounded-3xl text-left">
+                            <div class="flex items-center gap-3 text-yellow-500 mb-6">
+                                <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+                                <span class="text-xl font-bold tracking-tight uppercase">Conflicting Evidence Detected</span>
+                            </div>
+                            <div class="space-y-4 text-slate-300">
+                                <p class="text-sm">The agent identified a statistical impossibility between <strong>Section 4.A</strong> (Self-Reported Non-Smoker) and <strong>Lab Record #882</strong> (Elevated Nicotine Metabolites).</p>
+                                <div class="p-4 bg-black/40 rounded-xl border border-slate-800 font-mono text-[10px]">
+                                    <div class="flex justify-between border-b border-slate-800 pb-2 mb-2">
+                                        <span>SIGNAL_SOURCE</span>
+                                        <span>CONFIDENCE</span>
+                                    </div>
+                                    <div class="flex justify-between text-teal-400">
+                                        <span>LabCorp Urine Panel Oct-23</span>
+                                        <span>94.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="nextStep()" class="mt-8 w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-all border border-slate-700">Acknowledge & Augment Evidence</button>
+                        </div>
+                    `;
+                    break;
+                case 3:
+                    innerHTML = `
+                        <div class="w-full max-w-xl space-y-6">
+                            <div class="text-left bg-teal-900/10 border border-teal-500/30 p-8 rounded-3xl relative">
+                                <div class="absolute top-4 right-4 px-2 py-1 bg-teal-500 text-[9px] font-bold text-white rounded">AI PROPOSAL</div>
+                                <div class="text-xs text-teal-500 font-bold mb-2 uppercase">Risk Classification</div>
+                                <div class="text-4xl font-bold text-white mb-4">Table B <span class="text-xl text-slate-500 font-normal">(Standard Plus)</span></div>
+                                <div class="grid grid-cols-2 gap-4 mt-6 border-t border-teal-500/20 pt-6">
+                                    <div>
+                                        <div class="text-[10px] text-slate-500 uppercase font-bold">Predicted Mortality</div>
+                                        <div class="text-lg font-bold text-white">125% - 130%</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] text-slate-500 uppercase font-bold">Premium Multiplier</div>
+                                        <div class="text-lg font-bold text-white">1.50x Base</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <button onclick="nextStep()" class="flex-1 py-4 bg-teal-600 text-white rounded-xl text-xs font-bold hover:bg-teal-500 transition-all">SIGN & SUBMIT TO UNDERWRITER</button>
+                                <button class="px-6 py-4 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700 hover:bg-slate-700">MODIFY PARAMS</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 4:
+                    innerHTML = `
+                        <div class="flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div class="w-24 h-24 bg-green-500/10 border border-green-500/40 rounded-full flex items-center justify-center mb-8 relative">
+                                <div class="absolute inset-0 bg-green-500/20 rounded-full animate-ping"></div>
+                                <i data-lucide="check-circle-2" class="w-12 h-12 text-green-500"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white">Package Ready for Signature</h3>
+                            <p class="text-sm text-slate-400 mt-4 max-w-md">Agentic AI cycle successfully finalized. The full underwriting narrative and reasoning chain are indexed in the Audit Trail.</p>
+                            <div class="mt-10 flex gap-4">
+                                <button onclick="resetSimulation()" class="px-8 py-3 bg-slate-800 text-slate-400 rounded-xl text-xs font-bold border border-slate-700 hover:text-white transition-all">Restart Simulation</button>
+                                <button class="px-8 py-3 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/20">Finalize Decision</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                default:
+                    innerHTML = `
+                        <div class="text-center space-y-6">
+                            <h2 class="text-xl font-bold text-white">${step.action}</h2>
+                            <p class="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">${step.longDesc}</p>
+                            <button onclick="nextStep()" class="mt-6 px-10 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-teal-600/20 active:scale-95">Proceed to Next Agent Phase</button>
+                        </div>
+                    `;
+            }
+            viewport.innerHTML = innerHTML;
+            lucide.createIcons();
+        }
+
+        function nextStep() {
+            if (currentStep < workflowSteps.length - 1) {
+                isProcessing = true;
+                renderSimulation();
+                renderPipeline();
+                
+                // AI Processing Simulation
+                setTimeout(() => {
+                    currentStep++;
+                    isProcessing = false;
+                    stepIndicator.innerText = `Step ${currentStep + 1}/5`;
+                    
+                    // Update Right Side Status
+                    document.getElementById('ai-status-text').innerText = workflowSteps[currentStep].title;
+                    if(currentStep === 4) {
+                        document.getElementById('ai-check').classList.replace('text-slate-700', 'text-green-500');
+                        document.getElementById('human-card').classList.remove('opacity-50', 'bg-slate-900/60');
+                        document.getElementById('human-card').classList.add('border-blue-500/40', 'bg-blue-500/5');
+                    }
+
+                    renderSimulation();
+                    renderPipeline();
+                    addLog(workflowSteps[currentStep-1].action + " - [SUCCESS]", 'success');
+                    addLog(`Transitioned to: ${workflowSteps[currentStep].title}`, 'ai');
+                }, 1500);
+            }
+        }
+
+        function resetSimulation() {
+            currentStep = 0;
+            isProcessing = false;
+            stepIndicator.innerText = `Step 1/5`;
+            document.getElementById('ai-status-text').innerText = "Processing signals...";
+            document.getElementById('ai-check').classList.add('text-slate-700');
+            document.getElementById('human-card').classList.add('opacity-50');
+            init();
+        }
+
+        function addLog(msg, type) {
+            const time = new Date().toLocaleTimeString([], { hour12: false });
+            const colors = {
+                info: 'text-slate-500',
+                success: 'text-green-500',
+                warning: 'text-yellow-500',
+                ai: 'text-teal-400 font-bold',
+                error: 'text-red-500'
+            };
+            const logEntry = document.createElement('div');
+            logEntry.className = 'flex gap-3 animate-in slide-in-from-left-2 duration-300';
+            logEntry.innerHTML = `
+                <span class="text-slate-700 text-[9px] mt-0.5">[${time}]</span>
+                <span class="${colors[type] || colors.info}">${msg}</span>
+            `;
+            logStream.prepend(logEntry);
+        }
+
+        // Mock events for realism
+        setInterval(() => {
+            if(Math.random() > 0.8) {
+                const randomLogs = [
+                    "Checking Munich Re API connection...",
+                    "Index refreshing: Case LI-9823-X",
+                    "Security heartbeat: TLS 1.3 Active",
+                    "Vector database latency: 12ms",
+                    "Semantic buffer flushed."
+                ];
+                addLog(randomLogs[Math.floor(Math.random() * randomLogs.length)], 'info');
+            }
+        }, 3000);
+
+        window.onload = init;
+    </script>
+</body>
+</html>
