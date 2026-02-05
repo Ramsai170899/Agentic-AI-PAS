@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeGuard AI PAS - Policy Administration System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #1a2332;
+            --primary-blue: #2563eb;
+            --accent-gold: #f59e0b;
+            --accent-emerald: #10b981;
+            --neutral-100: #f8fafc;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --ai-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --risk-low: #10b981;
+            --risk-medium: #f59e0b;
+            --risk-high: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--neutral-100);
+            color: var(--neutral-800);
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--neutral-200);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Crimson Pro', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--ai-gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--neutral-700);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1.4rem;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-blue);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--neutral-100);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--ai-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--neutral-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--neutral-700);
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--neutral-100);
+            color: var(--primary-blue);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .ai-badge {
+            background: var(--ai-gradient);
+            color: white;
+            font-size: 0.625rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .dashboard-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--neutral-700);
+            font-size: 1rem;
+        }
+
+        /* AI Assistant Panel */
+        .ai-assistant {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-assistant::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .ai-suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .suggestion-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .suggestion-card:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        .suggestion-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .suggestion-desc {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--neutral-700);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .trend-up { color: var(--accent-emerald); }
+        .trend-down { color: var(--risk-high); }
+
+        /* Policy Table */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid var(--neutral-300);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            width: 300px;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neutral-700);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-200);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: var(--neutral-100);
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--neutral-700);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--neutral-200);
+            font-size: 0.875rem;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--neutral-100);
+        }
+
+        .policy-id {
+            font-weight: 600;
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .policy-id:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(16,185,129,0.1);
+            color: var(--accent-emerald);
+        }
+
+        .status-pending {
+            background: rgba(245,158,11,0.1);
+            color: var(--accent-gold);
+        }
+
+        .status-review {
+            background: rgba(37,99,235,0.1);
+            color: var(--primary-blue);
+        }
+
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .risk-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .risk-low { background: var(--risk-low); }
+        .risk-medium { background: var(--risk-medium); }
+        .risk-high { background: var(--risk-high); }
+
+        .ai-score {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .ai-icon-small {
+            width: 20px;
+            height: 20px;
+            background: var(--ai-gradient);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.625rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* AI Features Panel */
+        .ai-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(4px);
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--ai-gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary-dark);
+        }
+
+        .feature-desc {
+            color: var(--neutral-700);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--neutral-700);
+            font-size: 0.875rem;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            width: 20px;
+            height: 20px;
+            background: rgba(16,185,129,0.1);
+            color: var(--accent-emerald);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .animate-delay-1 { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+        .animate-delay-2 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+        .animate-delay-3 { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
+        .animate-delay-4 { animation-delay: 0.4s; opacity: 0; animation-fill-mode: forwards; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .nav-items {
+                display: none;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box input {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">LG</div>
+                <span>LifeGuard AI PAS</span>
+            </div>
+            <nav class="nav-items">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Policies</a>
+                <a href="#" class="nav-link">Underwriting</a>
+                <a href="#" class="nav-link">Claims</a>
+                <a href="#" class="nav-link">Analytics</a>
+                <a href="#" class="nav-link">AI Insights</a>
+            </nav>
+            <div class="user-profile">
+                <div class="user-avatar">JD</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.875rem;">John Doe</div>
+                    <div style="font-size: 0.75rem; color: var(--neutral-700);">Senior Underwriter</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Underwriting</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="active">📊 Dashboard</a></li>
+                    <li><a href="#">📋 New Applications <span class="ai-badge">AI</span></a></li>
+                    <li><a href="#">🔍 Risk Assessment <span class="ai-badge">AI</span></a></li>
+                    <li><a href="#">✅ Policy Approval</a></li>
+                    <li><a href="#">📄 Documents</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Policy Management</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#">📁 Active Policies</a></li>
+                    <li><a href="#">🔄 Renewals</a></li>
+                    <li><a href="#">⚡ Modifications</a></li>
+                    <li><a href="#">🚫 Cancellations</a></li>
+                    <li><a href="#">💰 Premium Calculation <span class="ai-badge">AI</span></a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">AI Tools</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#">🤖 AI Assistant <span class="ai-badge">AI</span></a></li>
+                    <li><a href="#">📈 Predictive Analytics <span class="ai-badge">AI</span></a></li>
+                    <li><a href="#">🎯 Fraud Detection <span class="ai-badge">AI</span></a></li>
+                    <li><a href="#">📊 Risk Modeling <span class="ai-badge">AI</span></a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Reports</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#">📑 Underwriting Report</a></li>
+                    <li><a href="#">💹 Performance Metrics</a></li>
+                    <li><a href="#">⚠️ Risk Portfolio</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <!-- Dashboard Header -->
+            <section class="dashboard-header animate-in">
+                <h1 class="dashboard-title">Underwriting Dashboard</h1>
+                <p class="dashboard-subtitle">Welcome back, John. You have 23 applications pending review and 5 AI-flagged cases requiring attention.</p>
+            </section>
+
+            <!-- AI Assistant Panel -->
+            <section class="ai-assistant animate-in animate-delay-1">
+                <div class="ai-header">
+                    <div class="ai-icon">🤖</div>
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">AI Underwriting Assistant</h2>
+                        <div class="ai-status">
+                            <div class="status-dot"></div>
+                            <span>Active & Monitoring</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-suggestions">
+                    <div class="suggestion-card">
+                        <div class="suggestion-title">🎯 High Priority Alert</div>
+                        <div class="suggestion-desc">3 applications exceed risk threshold and require immediate review</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-title">💡 AI Recommendation</div>
+                        <div class="suggestion-desc">Premium adjustment suggested for 7 policies based on risk recalculation</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-title">⚡ Quick Approval</div>
+                        <div class="suggestion-desc">12 applications pre-qualified for auto-approval with 95%+ confidence</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-title">🔍 Fraud Detection</div>
+                        <div class="suggestion-desc">2 suspicious patterns detected in recent submissions</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Grid -->
+            <section class="stats-grid animate-in animate-delay-2">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">Active Policies</div>
+                        </div>
+                        <div class="stat-icon" style="background: rgba(37,99,235,0.1); color: var(--primary-blue);">📋</div>
+                    </div>
+                    <div class="stat-trend trend-up">
+                        <span>↑ 12%</span>
+                        <span style="color: var(--neutral-700);">vs last month</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">Pending Reviews</div>
+                        </div>
+                        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--accent-gold);">⏳</div>
+                    </div>
+                    <div class="stat-trend trend-down">
+                        <span>↓ 8%</span>
+                        <span style="color: var(--neutral-700);">vs last week</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">$2.4M</div>
+                            <div class="stat-label">Total Premium Value</div>
+                        </div>
+                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--accent-emerald);">💰</div>
+                    </div>
+                    <div class="stat-trend trend-up">
+                        <span>↑ 18%</span>
+                        <span style="color: var(--neutral-700);">vs last quarter</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">94%</div>
+                            <div class="stat-label">AI Accuracy Rate</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--ai-gradient); color: white;">🎯</div>
+                    </div>
+                    <div class="stat-trend trend-up">
+                        <span>↑ 3%</span>
+                        <span style="color: var(--neutral-700);">improved</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Applications Table -->
+            <section class="table-container animate-in animate-delay-3">
+                <div class="table-header">
+                    <h2 class="table-title">Recent Applications</h2>
+                    <div class="table-actions">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" placeholder="Search policies, applicants...">
+                        </div>
+                        <button class="btn btn-secondary">
+                            <span>📊</span>
+                            Filter
+                        </button>
+                        <button class="btn btn-primary">
+                            <span>➕</span>
+                            New Application
+                        </button>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Policy ID</th>
+                            <th>Applicant</th>
+                            <th>Policy Type</th>
+                            <th>Coverage Amount</th>
+                            <th>Risk Level</th>
+                            <th>AI Score</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="#" class="policy-id">LG-2026-0847</a></td>
+                            <td>
+                                <div style="font-weight: 600;">Sarah Mitchell</div>
+                                <div style="font-size: 0.75rem; color: var(--neutral-700);">42 years, Non-smoker</div>
+                            </td>
+                            <td>Term Life - 20 Year</td>
+                            <td>$500,000</td>
+                            <td>
+                                <div class="risk-indicator">
+                                    <div class="risk-dot risk-low"></div>
+                                    Low
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ai-score">
+                                    <div class="ai-icon-small">AI</div>
+                                    96%
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-review">Review</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn" title="View Details">👁️</button>
+                                    <button class="icon-btn" title="Edit">✏️</button>
+                                    <button class="icon-btn" title="Approve">✓</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><a href="#" class="policy-id">LG-2026-0846</a></td>
+                            <td>
+                                <div style="font-weight: 600;">James Rodriguez</div>
+                                <div style="font-size: 0.75rem; color: var(--neutral-700);">35 years, Smoker</div>
+                            </td>
+                            <td>Whole Life</td>
+                            <td>$750,000</td>
+                            <td>
+                                <div class="risk-indicator">
+                                    <div class="risk-dot risk-medium"></div>
+                                    Medium
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ai-score">
+                                    <div class="ai-icon-small">AI</div>
+                                    78%
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn" title="View Details">👁️</button>
+                                    <button class="icon-btn" title="Edit">✏️</button>
+                                    <button class="icon-btn" title="Approve">✓</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><a href="#" class="policy-id">LG-2026-0845</a></td>
+                            <td>
+                                <div style="font-weight: 600;">Emily Chen</div>
+                                <div style="font-size: 0.75rem; color: var(--neutral-700);">28 years, Non-smoker</div>
+                            </td>
+                            <td>Term Life - 30 Year</td>
+                            <td>$1,000,000</td>
+                            <td>
+                                <div class="risk-indicator">
+                                    <div class="risk-dot risk-low"></div>
+                                    Low
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ai-score">
+                                    <div class="ai-icon-small">AI</div>
+                                    98%
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-active">Approved</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn" title="View Details">👁️</button>
+                                    <button class="icon-btn" title="Edit">✏️</button>
+                                    <button class="icon-btn" title="Approve">✓</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><a href="#" class="policy-id">LG-2026-0844</a></td>
+                            <td>
+                                <div style="font-weight: 600;">Michael Thompson</div>
+                                <div style="font-size: 0.75rem; color: var(--neutral-700);">55 years, Medical history</div>
+                            </td>
+                            <td>Universal Life</td>
+                            <td>$300,000</td>
+                            <td>
+                                <div class="risk-indicator">
+                                    <div class="risk-dot risk-high"></div>
+                                    High
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ai-score">
+                                    <div class="ai-icon-small">AI</div>
+                                    62%
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-review">Review</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn" title="View Details">👁️</button>
+                                    <button class="icon-btn" title="Edit">✏️</button>
+                                    <button class="icon-btn" title="Approve">✓</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><a href="#" class="policy-id">LG-2026-0843</a></td>
+                            <td>
+                                <div style="font-weight: 600;">Lisa Anderson</div>
+                                <div style="font-size: 0.75rem; color: var(--neutral-700);">38 years, Non-smoker</div>
+                            </td>
+                            <td>Term Life - 20 Year</td>
+                            <td>$600,000</td>
+                            <td>
+                                <div class="risk-indicator">
+                                    <div class="risk-dot risk-low"></div>
+                                    Low
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ai-score">
+                                    <div class="ai-icon-small">AI</div>
+                                    91%
+                                </div>
+                            </td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn" title="View Details">👁️</button>
+                                    <button class="icon-btn" title="Edit">✏️</button>
+                                    <button class="icon-btn" title="Approve">✓</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- AI Features -->
+            <section class="ai-features animate-in animate-delay-4">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">Automated Risk Assessment</div>
+                    </div>
+                    <p class="feature-desc">AI analyzes medical records, lifestyle factors, and historical data to provide instant risk classification with 94% accuracy.</p>
+                    <ul class="feature-list">
+                        <li>Medical history analysis</li>
+                        <li>Lifestyle risk scoring</li>
+                        <li>Predictive mortality modeling</li>
+                        <li>Real-time risk updates</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">💰</div>
+                        <div class="feature-title">Smart Premium Calculation</div>
+                    </div>
+                    <p class="feature-desc">Dynamic pricing engine adjusts premiums based on comprehensive risk factors, market conditions, and competitive analysis.</p>
+                    <ul class="feature-list">
+                        <li>Real-time market pricing</li>
+                        <li>Risk-adjusted calculations</li>
+                        <li>Competitive positioning</li>
+                        <li>Profitability optimization</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔍</div>
+                        <div class="feature-title">Fraud Detection Engine</div>
+                    </div>
+                    <p class="feature-desc">Advanced pattern recognition identifies suspicious applications and inconsistencies across documents and data sources.</p>
+                    <ul class="feature-list">
+                        <li>Document verification</li>
+                        <li>Pattern anomaly detection</li>
+                        <li>Cross-reference validation</li>
+                        <li>Behavioral analysis</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">Predictive Analytics</div>
+                    </div>
+                    <p class="feature-desc">Machine learning models forecast claim probability, policy lapse rates, and portfolio performance metrics.</p>
+                    <ul class="feature-list">
+                        <li>Claim prediction modeling</li>
+                        <li>Lapse rate forecasting</li>
+                        <li>Portfolio risk assessment</li>
+                        <li>Trend analysis</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">✅</div>
+                        <div class="feature-title">Auto-Approval Workflow</div>
+                    </div>
+                    <p class="feature-desc">Streamlined processing automatically approves low-risk applications, reducing processing time from days to minutes.</p>
+                    <ul class="feature-list">
+                        <li>Instant eligibility check</li>
+                        <li>Automated document review</li>
+                        <li>Rule-based approval</li>
+                        <li>Exception routing</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📄</div>
+                        <div class="feature-title">Intelligent Document Processing</div>
+                    </div>
+                    <p class="feature-desc">OCR and NLP extract data from medical records, financial documents, and applications with minimal manual intervention.</p>
+                    <ul class="feature-list">
+                        <li>OCR data extraction</li>
+                        <li>Medical record parsing</li>
+                        <li>Automated classification</li>
+                        <li>Quality validation</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Add interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats on scroll
+            const statCards = document.querySelectorAll('.stat-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            statCards.forEach(card => observer.observe(card));
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-box input');
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('.data-table tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // AI suggestion cards interaction
+            const suggestionCards = document.querySelectorAll('.suggestion-card');
+            suggestionCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    alert('AI Suggestion: ' + this.querySelector('.suggestion-title').textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
