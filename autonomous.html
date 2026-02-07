@@ -1,0 +1,1194 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis AI | Agentic Life Insurance Ecosystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .agent-pulse {
+            position: relative;
+        }
+
+        .agent-pulse::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            border-radius: 50%;
+            border: 2px solid #38bdf8;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .nav-link {
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-approved {
+            background: rgba(52, 211, 153, 0.1);
+            color: #34d399;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+        }
+
+        .status-declined {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .status-processing {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+        }
+    </style>
+</head>
+
+<body class="overflow-hidden h-screen flex flex-col">
+
+    <!-- Top Navigation -->
+    <header class="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/50 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-sky-500 rounded-lg flex items-center justify-center">
+                <i data-lucide="shield-check" class="text-white w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl tracking-tight">AEGIS <span
+                        class="text-sky-400 font-light text-sm tracking-widest ml-1 uppercase">Agentic PAS</span></h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="flex gap-4 text-xs font-medium text-slate-400">
+                <div class="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    System: Healthy
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i data-lucide="cpu" class="w-3 h-3"></i>
+                    Agents Active: <span id="active-agents">124</span>
+                </div>
+            </div>
+            <div class="h-8 w-px bg-slate-800"></div>
+            <button onclick="openNewPolicyModal()"
+                class="bg-sky-600 hover:bg-sky-500 transition-colors text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> New Policy
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-20 lg:w-64 border-r border-slate-800 flex flex-col p-4 gap-2 bg-slate-900/30">
+            <nav class="space-y-1">
+                <a data-page="dashboard" onclick="navigateTo('dashboard')"
+                    class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 font-medium">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span class="hidden lg:block">Ecosystem Hub</span>
+                </a>
+                <a data-page="policies" onclick="navigateTo('policies')"
+                    class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span class="hidden lg:block">Policy Management</span>
+                </a>
+                <a data-page="underwriting" onclick="navigateTo('underwriting')"
+                    class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                    <span class="hidden lg:block">Auto-Underwriting</span>
+                </a>
+                <a data-page="claims" onclick="navigateTo('claims')"
+                    class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+                    <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+                    <span class="hidden lg:block">Claims Processing</span>
+                </a>
+                <a data-page="config" onclick="navigateTo('config')"
+                    class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="hidden lg:block">Agent Config</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Container -->
+        <main
+            class="flex-1 overflow-y-auto p-6 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-800/20 via-slate-950 to-slate-950 custom-scrollbar">
+
+            <!-- DASHBOARD PAGE -->
+            <div id="page-dashboard" class="page-section active">
+                <!-- Dashboard Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-3 opacity-20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="zap" class="w-12 h-12 text-sky-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">STP Rate (Auto-Issued)</p>
+                        <h3 class="text-3xl font-bold mt-1">84.2%</h3>
+                        <div class="flex items-center gap-1.5 mt-2 text-green-400 text-xs">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                            <span>+4.2% vs last month</span>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-3 opacity-20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="clock" class="w-12 h-12 text-purple-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">Avg. Time to Issue</p>
+                        <h3 class="text-3xl font-bold mt-1">18.4 <span
+                                class="text-sm font-normal text-slate-500">mins</span></h3>
+                        <div class="flex items-center gap-1.5 mt-2 text-green-400 text-xs">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                            <span>Improved by 35%</span>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-3 opacity-20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="layers" class="w-12 h-12 text-emerald-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">Underwriting Accuracy</p>
+                        <h3 class="text-3xl font-bold mt-1">99.7%</h3>
+                        <div class="flex items-center gap-1.5 mt-2 text-slate-400 text-xs">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                            <span>Audit Verified (ISO 27001)</span>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-3 opacity-20 group-hover:scale-110 transition-transform">
+                            <i data-lucide="users" class="w-12 h-12 text-orange-400"></i>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">Active Policyholders</p>
+                        <h3 class="text-3xl font-bold mt-1">1.2M</h3>
+                        <div class="flex items-center gap-1.5 mt-2 text-orange-400 text-xs text-orange-400/80">
+                            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                            <span>12 renewals pending agent action</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Real-time Agentic Feed -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <div class="glass-card p-6 min-h-[400px]">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h2 class="text-xl font-bold flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                                        Autonomous Process Stream
+                                    </h2>
+                                    <p class="text-sm text-slate-400">Live orchestration of agent tasks across PAS
+                                        modules
+                                    </p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition"><i
+                                            data-lucide="filter" class="w-4 h-4"></i></button>
+                                    <button class="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition"><i
+                                            data-lucide="download" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+
+                            <div id="agent-log" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                                <!-- Logs injected via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Underwriting Metrics -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="glass-card p-6">
+                                <h3 class="font-bold text-slate-300 mb-4">Risk Distribution Analytics</h3>
+                                <div class="h-48 flex items-center justify-center">
+                                    <canvas id="riskChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="glass-card p-6">
+                                <h3 class="font-bold text-slate-300 mb-4">Agent Performance (By Role)</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1 text-slate-400">
+                                            <span>Medical Data Extraction</span>
+                                            <span>98% Eff.</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                            <div class="bg-sky-500 h-1.5 rounded-full" style="width: 98%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1 text-slate-400">
+                                            <span>Fraud Detection Agent</span>
+                                            <span>94% Eff.</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                            <div class="bg-purple-500 h-1.5 rounded-full" style="width: 94%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1 text-slate-400">
+                                            <span>Policy Doc Generation</span>
+                                            <span>100% Eff.</span>
+                                        </div>
+                                        <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 100%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Policy Monitoring -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold text-slate-300 mb-4">High-Value Queue (Manual Override)</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-slate-800/40 rounded-xl border border-slate-700/50">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-semibold text-sm">Policy #L-88294</h4>
+                                        <span class="status-badge status-pending">Awaiting UW</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mb-3">Applicant: Johnathan Vance<br>Face Amount:
+                                        $5,000,000</p>
+                                    <div class="flex items-center gap-2">
+                                        <button
+                                            class="flex-1 py-2 bg-sky-600/20 text-sky-400 text-xs font-bold rounded-lg hover:bg-sky-600/30 transition">Approve</button>
+                                        <button
+                                            class="flex-1 py-2 bg-slate-700/40 text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-700/60 transition">View
+                                            Details</button>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-slate-800/40 rounded-xl border border-slate-700/50 opacity-60">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-semibold text-sm">Policy #L-88301</h4>
+                                        <span class="status-badge status-declined">Risk Flag</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mb-3">Applicant: Elena Rodriguez<br>Reason: APS
+                                        Verification Mismatch</p>
+                                    <button
+                                        class="w-full py-2 bg-slate-700/40 text-slate-300 text-xs font-bold rounded-lg">Review
+                                        Medical Records</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold text-slate-300 mb-4 text-sm">Ecosystem Health Overview</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-slate-400">Agent Latency</span>
+                                    <span class="text-xs font-mono text-emerald-400">42ms</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-slate-400">Memory Usage</span>
+                                    <span class="text-xs font-mono text-slate-200">24.8 GB</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-slate-400">LLM Tokens/min</span>
+                                    <span class="text-xs font-mono text-slate-200">842k</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POLICY MANAGEMENT PAGE -->
+            <div id="page-policies" class="page-section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold mb-2">Policy Management</h2>
+                    <p class="text-slate-400 text-sm">Comprehensive policy lifecycle tracking and AI-powered
+                        administration</p>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="glass-card p-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-2">
+                            <input type="text" placeholder="Search by policy number, name, or email..."
+                                class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                        </div>
+                        <select
+                            class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                            <option>All Statuses</option>
+                            <option>Active</option>
+                            <option>Pending</option>
+                            <option>Lapsed</option>
+                            <option>Cancelled</option>
+                        </select>
+                        <select
+                            class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                            <option>All Products</option>
+                            <option>Term Life</option>
+                            <option>Whole Life</option>
+                            <option>Universal Life</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Policy Table -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg">Active Policies</h3>
+                        <button class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-2">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            Export CSV
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="border-b border-slate-800">
+                                <tr class="text-slate-400 text-xs uppercase">
+                                    <th class="text-left py-3 font-semibold">Policy #</th>
+                                    <th class="text-left py-3 font-semibold">Insured</th>
+                                    <th class="text-left py-3 font-semibold">Product</th>
+                                    <th class="text-left py-3 font-semibold">Coverage</th>
+                                    <th class="text-left py-3 font-semibold">Premium</th>
+                                    <th class="text-left py-3 font-semibold">Status</th>
+                                    <th class="text-left py-3 font-semibold">Next Action</th>
+                                    <th class="text-left py-3 font-semibold"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="policy-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AUTO-UNDERWRITING PAGE -->
+            <div id="page-underwriting" class="page-section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold mb-2">Auto-Underwriting Engine</h2>
+                    <p class="text-slate-400 text-sm">AI-powered risk assessment and decision automation</p>
+                </div>
+
+                <!-- Underwriting Queue Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">In Queue</p>
+                        <h3 class="text-2xl font-bold text-yellow-400">23</h3>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Auto-Approved Today</p>
+                        <h3 class="text-2xl font-bold text-emerald-400">142</h3>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Requires Review</p>
+                        <h3 class="text-2xl font-bold text-orange-400">8</h3>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Avg Decision Time</p>
+                        <h3 class="text-2xl font-bold text-sky-400">4.2min</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Underwriting Queue -->
+                    <div class="xl:col-span-2">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold text-lg mb-4">Underwriting Queue</h3>
+                            <div id="underwriting-queue" class="space-y-4">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Factors & Rules -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4">Active Risk Models</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-slate-800/40 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-semibold">Medical History Analyzer</span>
+                                        <span class="text-xs text-emerald-400">Active</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400">AI-powered APS interpretation with 99.2% accuracy
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-slate-800/40 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-semibold">Mortality Risk Predictor</span>
+                                        <span class="text-xs text-emerald-400">Active</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400">ML model trained on 2.4M policies</p>
+                                </div>
+                                <div class="p-3 bg-slate-800/40 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-semibold">Fraud Detection Neural Net</span>
+                                        <span class="text-xs text-emerald-400">Active</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400">Anomaly detection with behavioral analysis</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4 text-sm">Underwriting Rules</h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Auto-approve threshold</span>
+                                    <span class="text-white font-mono">≤ $250k</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Age limit (Term)</span>
+                                    <span class="text-white font-mono">18-65</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Max risk score</span>
+                                    <span class="text-white font-mono">7.5/10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLAIMS PROCESSING PAGE -->
+            <div id="page-claims" class="page-section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold mb-2">Claims Processing</h2>
+                    <p class="text-slate-400 text-sm">Automated claims adjudication and fraud detection</p>
+                </div>
+
+                <!-- Claims Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Open Claims</p>
+                        <h3 class="text-2xl font-bold text-sky-400">47</h3>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Avg Processing Time</p>
+                        <h3 class="text-2xl font-bold text-purple-400">2.8 days</h3>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Auto-Approved This Month</p>
+                        <h3 class="text-2xl font-bold text-emerald-400">284</h3>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="text-slate-400 text-xs font-medium mb-1">Fraud Flags</p>
+                        <h3 class="text-2xl font-bold text-red-400">3</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Claims List -->
+                    <div class="xl:col-span-2">
+                        <div class="glass-card p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-lg">Recent Claims</h3>
+                                <select class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs">
+                                    <option>All Claims</option>
+                                    <option>Death Benefit</option>
+                                    <option>Critical Illness</option>
+                                    <option>Disability</option>
+                                </select>
+                            </div>
+                            <div id="claims-list" class="space-y-3">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Claims Processing Flow -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4">AI Processing Pipeline</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-xs font-bold text-sky-400">1</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold">Document Ingestion</p>
+                                        <p class="text-xs text-slate-400">OCR + Classification</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-xs font-bold text-purple-400">2</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold">Fraud Detection</p>
+                                        <p class="text-xs text-slate-400">Pattern Analysis</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-xs font-bold text-emerald-400">3</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold">Policy Verification</p>
+                                        <p class="text-xs text-slate-400">Coverage Check</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-xs font-bold text-orange-400">4</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold">Auto-Adjudication</p>
+                                        <p class="text-xs text-slate-400">Decision + Payment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4 text-sm">Fraud Detection Stats</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">False Positive Rate</span>
+                                    <span class="text-emerald-400 font-mono">0.8%</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Detected This Month</span>
+                                    <span class="text-red-400 font-mono">12 cases</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Prevented Losses</span>
+                                    <span class="text-sky-400 font-mono">$2.4M</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AGENT CONFIG PAGE -->
+            <div id="page-config" class="page-section">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold mb-2">Agent Configuration</h2>
+                    <p class="text-slate-400 text-sm">Manage and optimize your autonomous AI agents</p>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Agent List -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold text-lg mb-4">Active Agents</h3>
+                            <div id="agent-config-list" class="space-y-4">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Performance Monitoring -->
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold text-lg mb-4">Agent Performance Matrix</h3>
+                            <div class="h-64">
+                                <canvas id="agentPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Controls -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4">System Controls</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs text-slate-400 mb-2 block">Global Processing Speed</label>
+                                    <input type="range" min="1" max="10" value="8" class="w-full">
+                                    <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                        <span>Conservative</span>
+                                        <span>Aggressive</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400 mb-2 block">Auto-Approval Threshold</label>
+                                    <input type="range" min="1" max="10" value="6" class="w-full">
+                                    <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                        <span>Strict</span>
+                                        <span>Lenient</span>
+                                    </div>
+                                </div>
+                                <div class="pt-4 border-t border-slate-800">
+                                    <button
+                                        class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-sm font-bold rounded-lg transition">
+                                        Apply Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4 text-sm">Resource Usage</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">CPU Usage</span>
+                                        <span class="text-white">64%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                        <div class="bg-sky-500 h-1.5 rounded-full" style="width: 64%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Memory</span>
+                                        <span class="text-white">42%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                        <div class="bg-purple-500 h-1.5 rounded-full" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">API Quota</span>
+                                        <span class="text-white">28%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                        <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 28%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-3 text-sm">Quick Actions</h3>
+                            <div class="space-y-2">
+                                <button
+                                    class="w-full py-2 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg transition flex items-center justify-center gap-2">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                    Restart All Agents
+                                </button>
+                                <button
+                                    class="w-full py-2 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg transition flex items-center justify-center gap-2">
+                                    <i data-lucide="database" class="w-3 h-3"></i>
+                                    Clear Agent Cache
+                                </button>
+                                <button
+                                    class="w-full py-2 text-xs bg-slate-800 hover:bg-slate-700 rounded-lg transition flex items-center justify-center gap-2">
+                                    <i data-lucide="file-down" class="w-3 h-3"></i>
+                                    Export Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- New Policy Modal -->
+    <div id="newPolicyModal" class="modal">
+        <div class="glass-card p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">New Policy Application</h3>
+                <button onclick="closeNewPolicyModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-400 mb-2 block">First Name</label>
+                        <input type="text"
+                            class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 mb-2 block">Last Name</label>
+                        <input type="text"
+                            class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 mb-2 block">Email</label>
+                    <input type="email"
+                        class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 mb-2 block">Product Type</label>
+                    <select
+                        class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                        <option>Term Life Insurance</option>
+                        <option>Whole Life Insurance</option>
+                        <option>Universal Life Insurance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 mb-2 block">Coverage Amount</label>
+                    <input type="number" placeholder="$"
+                        class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:border-sky-500 focus:outline-none">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="submitNewPolicy()"
+                        class="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-sm font-bold rounded-lg transition">
+                        Submit Application
+                    </button>
+                    <button onclick="closeNewPolicyModal()"
+                        class="flex-1 py-2 bg-slate-700 hover:bg-slate-600 text-sm font-bold rounded-lg transition">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed bottom-6 right-6 translate-y-20 transition-transform duration-300 z-[100]">
+        <div class="bg-sky-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4">
+            <div class="bg-white/20 p-2 rounded-lg"><i data-lucide="bell" class="w-5 h-5"></i></div>
+            <div>
+                <p class="text-xs font-bold uppercase opacity-80">AI Notification</p>
+                <p class="font-medium" id="notif-text">Underwriting completed for L-88212</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== LUCIDE INITIALIZATION =====
+        function initializeLucide(retryCount = 0) {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+                console.log("Lucide icons initialized successfully.");
+            } else if (retryCount < 10) {
+                console.warn(`Lucide not found. Retrying... (${retryCount + 1}/10)`);
+                setTimeout(() => initializeLucide(retryCount + 1), 200);
+            } else {
+                console.error("Lucide failed to load after multiple attempts.");
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeLucide();
+            initApp();
+        });
+
+        window.onload = function () {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        };
+
+        // ===== NAVIGATION =====
+        function navigateTo(page) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected page
+            document.getElementById(`page-${page}`).classList.add('active');
+
+            // Update nav styling
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-sky-500/10', 'text-sky-400', 'border', 'border-sky-500/20');
+                link.classList.add('text-slate-400');
+            });
+
+            const activeLink = document.querySelector(`[data-page="${page}"]`);
+            activeLink.classList.add('bg-sky-500/10', 'text-sky-400', 'border', 'border-sky-500/20');
+            activeLink.classList.remove('text-slate-400');
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // ===== MODAL FUNCTIONS =====
+        function openNewPolicyModal() {
+            document.getElementById('newPolicyModal').classList.add('active');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function closeNewPolicyModal() {
+            document.getElementById('newPolicyModal').classList.remove('active');
+        }
+
+        function submitNewPolicy() {
+            showNotification('New policy application submitted - Agent processing initiated');
+            closeNewPolicyModal();
+        }
+
+        // ===== MAIN APP =====
+        function initApp() {
+            const AGENTS = [
+                { name: "MedicalAgent", color: "text-blue-400", bg: "bg-blue-400/10" },
+                { name: "UnderwriterAgent", color: "text-purple-400", bg: "bg-purple-400/10" },
+                { name: "ComplianceAgent", color: "text-emerald-400", bg: "bg-emerald-400/10" },
+                { name: "PaymentAgent", color: "text-orange-400", bg: "bg-orange-400/10" },
+                { name: "SupportAgent", color: "text-pink-400", bg: "bg-pink-400/10" }
+            ];
+
+            const ACTIONS = [
+                "Parsed Attending Physician Statement for applicant 9210",
+                "Validated beneficiary hierarchy for Policy #L-8122",
+                "Cross-referenced MIB database for undisclosed hazards",
+                "Triggered automatic premium deduction for 142 policies",
+                "Calculated mortality risk adjustment based on new labs",
+                "Generating electronic policy contract via PDF engine",
+                "Performing KYC/AML scrub on international wire transfer",
+                "Detected anomaly in billing pattern for client ID: 442"
+            ];
+
+            // ===== AGENT LOG =====
+            const logContainer = document.getElementById('agent-log');
+
+            function addLogEntry() {
+                const agent = AGENTS[Math.floor(Math.random() * AGENTS.length)];
+                const action = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
+                const id = Math.floor(Math.random() * 90000) + 10000;
+                const time = new Date().toLocaleTimeString();
+
+                const entry = document.createElement('div');
+                entry.className = 'flex gap-4 p-3 rounded-lg bg-slate-800/20 border border-slate-800 hover:border-slate-700 transition-all opacity-0 -translate-y-4';
+                entry.innerHTML = `
+                    <div class="w-10 h-10 rounded-full ${agent.bg} flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="cpu" class="w-5 h-5 ${agent.color}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold uppercase tracking-wider ${agent.color}">${agent.name}</span>
+                            <span class="text-[10px] text-slate-500 font-mono">${time}</span>
+                        </div>
+                        <p class="text-sm text-slate-300 font-medium">${action}</p>
+                        <div class="mt-2 flex items-center gap-3">
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">JOB_ID: ${id}</span>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-emerald-400 flex items-center gap-1">
+                                <span class="w-1 h-1 rounded-full bg-emerald-400"></span> SUCCESS
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                logContainer.prepend(entry);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                setTimeout(() => {
+                    entry.classList.remove('opacity-0', '-translate-y-4');
+                    entry.classList.add('opacity-100', 'translate-y-0');
+                }, 10);
+
+                if (logContainer.children.length > 20) {
+                    logContainer.removeChild(logContainer.lastChild);
+                }
+
+                if (Math.random() > 0.85) {
+                    showNotification(action);
+                }
+            }
+
+            function showNotification(text) {
+                const notif = document.getElementById('notification');
+                const notifText = document.getElementById('notif-text');
+                notifText.innerText = text;
+                notif.classList.remove('translate-y-20');
+
+                setTimeout(() => {
+                    notif.classList.add('translate-y-20');
+                }, 4000);
+            }
+
+            // ===== POLICY TABLE =====
+            const policies = [
+                { id: 'L-88401', name: 'Sarah Mitchell', product: 'Term Life 20Y', coverage: '$500,000', premium: '$42/mo', status: 'active', action: 'Renewal in 45 days' },
+                { id: 'L-88402', name: 'Michael Chen', product: 'Whole Life', coverage: '$1,000,000', premium: '$284/mo', status: 'active', action: 'None' },
+                { id: 'L-88403', name: 'Jessica Davis', product: 'Universal Life', coverage: '$750,000', premium: '$156/mo', status: 'pending', action: 'Awaiting medical records' },
+                { id: 'L-88404', name: 'Robert Johnson', product: 'Term Life 10Y', coverage: '$250,000', premium: '$28/mo', status: 'active', action: 'None' },
+                { id: 'L-88405', name: 'Emily Rodriguez', product: 'Term Life 30Y', coverage: '$2,000,000', premium: '$98/mo', status: 'active', action: 'Annual review scheduled' },
+            ];
+
+            const policyTableBody = document.getElementById('policy-table-body');
+            policies.forEach(policy => {
+                const statusClass = policy.status === 'active' ? 'status-approved' : 'status-pending';
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-800/50 hover:bg-slate-800/20 transition';
+                row.innerHTML = `
+                    <td class="py-4 font-mono text-xs">${policy.id}</td>
+                    <td class="py-4">${policy.name}</td>
+                    <td class="py-4 text-slate-400">${policy.product}</td>
+                    <td class="py-4 font-semibold">${policy.coverage}</td>
+                    <td class="py-4 text-slate-400">${policy.premium}</td>
+                    <td class="py-4"><span class="status-badge ${statusClass}">${policy.status}</span></td>
+                    <td class="py-4 text-xs text-slate-400">${policy.action}</td>
+                    <td class="py-4"><button class="text-sky-400 hover:text-sky-300 text-xs">View</button></td>
+                `;
+                policyTableBody.appendChild(row);
+            });
+
+            // ===== UNDERWRITING QUEUE =====
+            const underwritingItems = [
+                { id: 'UW-4421', name: 'David Martinez', amount: '$850,000', risk: '6.2', status: 'processing', time: '2m ago' },
+                { id: 'UW-4422', name: 'Linda Thompson', amount: '$1,200,000', risk: '7.8', status: 'review', time: '8m ago' },
+                { id: 'UW-4423', name: 'James Wilson', amount: '$350,000', risk: '4.1', status: 'processing', time: '12m ago' },
+            ];
+
+            const uwQueue = document.getElementById('underwriting-queue');
+            underwritingItems.forEach(item => {
+                const riskColor = item.risk < 5 ? 'text-emerald-400' : item.risk < 7 ? 'text-yellow-400' : 'text-red-400';
+                const statusBadge = item.status === 'processing' ? 'status-processing' : 'status-pending';
+
+                const card = document.createElement('div');
+                card.className = 'p-4 bg-slate-800/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-semibold text-sm mb-1">${item.id}</h4>
+                            <p class="text-xs text-slate-400">${item.name}</p>
+                        </div>
+                        <span class="status-badge ${statusBadge}">${item.status}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-xs">
+                        <div>
+                            <p class="text-slate-500 mb-1">Coverage</p>
+                            <p class="font-semibold">${item.amount}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 mb-1">Risk Score</p>
+                            <p class="font-semibold ${riskColor}">${item.risk}/10</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 mb-1">Submitted</p>
+                            <p class="font-semibold">${item.time}</p>
+                        </div>
+                    </div>
+                `;
+                uwQueue.appendChild(card);
+            });
+
+            // ===== CLAIMS LIST =====
+            const claims = [
+                { id: 'CLM-8821', policy: 'L-77201', type: 'Death Benefit', amount: '$500,000', status: 'approved', date: '2 days ago' },
+                { id: 'CLM-8822', policy: 'L-77189', type: 'Critical Illness', amount: '$75,000', status: 'processing', date: '1 day ago' },
+                { id: 'CLM-8823', policy: 'L-77156', type: 'Disability', amount: '$2,500/mo', status: 'pending', date: '4 hours ago' },
+                { id: 'CLM-8824', policy: 'L-77145', type: 'Death Benefit', amount: '$1,200,000', status: 'review', date: '6 hours ago' },
+            ];
+
+            const claimsList = document.getElementById('claims-list');
+            claims.forEach(claim => {
+                let statusBadge = 'status-processing';
+                if (claim.status === 'approved') statusBadge = 'status-approved';
+                else if (claim.status === 'pending') statusBadge = 'status-pending';
+                else if (claim.status === 'review') statusBadge = 'status-declined';
+
+                const card = document.createElement('div');
+                card.className = 'p-4 bg-slate-800/40 rounded-xl border border-slate-700/50';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-semibold text-sm mb-1">${claim.id}</h4>
+                            <p class="text-xs text-slate-400">Policy: ${claim.policy}</p>
+                        </div>
+                        <span class="status-badge ${statusBadge}">${claim.status}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-xs">
+                        <div>
+                            <p class="text-slate-500 mb-1">Type</p>
+                            <p class="font-semibold">${claim.type}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 mb-1">Amount</p>
+                            <p class="font-semibold text-sky-400">${claim.amount}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 mb-1">Filed</p>
+                            <p class="font-semibold">${claim.date}</p>
+                        </div>
+                    </div>
+                `;
+                claimsList.appendChild(card);
+            });
+
+            // ===== AGENT CONFIG =====
+            const agentConfigs = [
+                { name: 'Medical Data Extraction Agent', status: 'active', efficiency: '98%', requests: '2,442/day', description: 'Parses APS and medical records using NLP' },
+                { name: 'Underwriting Decision Agent', status: 'active', efficiency: '96%', requests: '1,824/day', description: 'Risk assessment and policy approval engine' },
+                { name: 'Fraud Detection Agent', status: 'active', efficiency: '94%', requests: '3,128/day', description: 'Behavioral anomaly detection across applications' },
+                { name: 'Claims Processing Agent', status: 'active', efficiency: '97%', requests: '842/day', description: 'Automated adjudication and payment processing' },
+                { name: 'Customer Support Agent', status: 'active', efficiency: '92%', requests: '5,621/day', description: 'Natural language policy inquiries and support' },
+            ];
+
+            const agentConfigList = document.getElementById('agent-config-list');
+            agentConfigs.forEach(agent => {
+                const card = document.createElement('div');
+                card.className = 'p-4 bg-slate-800/40 rounded-xl border border-slate-700/50';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <h4 class="font-semibold mb-1">${agent.name}</h4>
+                            <p class="text-xs text-slate-400">${agent.description}</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer ml-4">
+                            <input type="checkbox" checked class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-600"></div>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <p class="text-slate-500 mb-1">Efficiency</p>
+                            <p class="font-semibold text-emerald-400">${agent.efficiency}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 mb-1">Requests</p>
+                            <p class="font-semibold">${agent.requests}</p>
+                        </div>
+                    </div>
+                `;
+                agentConfigList.appendChild(card);
+            });
+
+            // ===== CHARTS =====
+            // Risk Distribution Chart
+            const ctxRisk = document.getElementById('riskChart');
+            if (ctxRisk) {
+                new Chart(ctxRisk.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Standard', 'Sub-standard', 'Preferred', 'Elite'],
+                        datasets: [{
+                            data: [45, 15, 25, 15],
+                            backgroundColor: ['#38bdf8', '#818cf8', '#34d399', '#f472b6'],
+                            borderWidth: 0,
+                            spacing: 5
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8', boxWidth: 12, font: { size: 10 } }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            // Agent Performance Chart
+            const ctxPerf = document.getElementById('agentPerformanceChart');
+            if (ctxPerf) {
+                new Chart(ctxPerf.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Medical', 'Underwriting', 'Fraud', 'Claims', 'Support'],
+                        datasets: [{
+                            label: 'Efficiency %',
+                            data: [98, 96, 94, 97, 92],
+                            backgroundColor: ['#38bdf8', '#818cf8', '#34d399', '#f472b6', '#fb923c'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: { color: '#1e293b' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // ===== INITIALIZATION =====
+            setInterval(addLogEntry, 3000);
+            for (let i = 0; i < 6; i++) addLogEntry();
+
+            // Refresh icons after all content is loaded
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>
