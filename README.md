@@ -1,9 +1,5 @@
 # Agentic-AI-PAS
 
-```
-give me the same using simple html. should look exactly same.
-```
-
 
 This demo illustrates a comprehensive **Agentic Policy Administration System (PAS) Workflow**, a next-generation, human-in-the-loop AI architecture engineered to transform the complex, document-intensive process of life insurance underwriting into a streamlined, intelligent, and collaborative operation. The system's ideology is built on a foundation of **augmented intelligence**—where autonomous AI agents do not replace human experts but act as powerful, transparent, and accountable co-pilots, handling the laborious tasks of data processing and initial analysis to elevate the human underwriter's role to that of a strategic decision-maker and final authority.
 
