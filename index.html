@@ -48,8 +48,8 @@
         .pipeline-line {
             position: absolute;
             top: 50%;
-            left: 50px;
-            right: 50px;
+            left: 70px;
+            right: 70px;
             height: 6px;
             background: linear-gradient(90deg, #4a6ee0, #ff7e30);
             transform: translateY(-50%);
@@ -58,7 +58,7 @@
             box-shadow: 0 2px 8px rgba(74, 110, 224, 0.3);
         }
         
-        /* Pipeline Nodes */
+        /* Pipeline Nodes - All aligned to the left */
         .pipeline-node {
             position: relative;
             display: flex;
@@ -74,7 +74,7 @@
             border-left: 6px solid #4a6ee0;
             transition: all 0.4s ease;
             flex: 1;
-            margin-left: 30px;
+            margin-left: 100px;
         }
         
         .node-content:hover {
@@ -83,13 +83,13 @@
             border-left-color: #ff7e30;
         }
         
-        /* Node Connectors */
+        /* Node Connectors - All on the left side */
         .node-connector {
             position: absolute;
             left: 0;
             top: 50%;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: white;
             border-radius: 50%;
             display: flex;
@@ -108,14 +108,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             background: #4a6ee0;
             color: white;
             border-radius: 50%;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             box-shadow: 0 4px 8px rgba(74, 110, 224, 0.4);
+        }
+        
+        /* Even nodes - shift content to the right */
+        .pipeline-node:nth-child(even) .node-content {
+            margin-left: 120px;
+            border-left-color: #ff7e30;
+        }
+        
+        .pipeline-node:nth-child(even) .node-connector {
+            border-color: #ff7e30;
+        }
+        
+        .pipeline-node:nth-child(even) .step-number {
+            background: #ff7e30;
         }
         
         .node-content h3 {
@@ -130,6 +144,10 @@
         .node-content h3 i {
             color: #4a6ee0;
             font-size: 1.3rem;
+        }
+        
+        .pipeline-node:nth-child(even) .node-content h3 i {
+            color: #ff7e30;
         }
         
         .node-content a {
@@ -151,6 +169,10 @@
             color: white;
         }
         
+        .pipeline-node:nth-child(even) .node-content a:hover {
+            background-color: #ff7e30;
+        }
+        
         .node-content .card-footer {
             margin-top: 15px;
             font-size: 0.9rem;
@@ -158,28 +180,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        
-        /* Alternating node positions */
-        .pipeline-node:nth-child(even) .node-content {
-            margin-left: 0;
-            margin-right: 30px;
-            border-left: none;
-            border-right: 6px solid #4a6ee0;
-        }
-        
-        .pipeline-node:nth-child(even) .node-connector {
-            left: auto;
-            right: 0;
-        }
-        
-        .pipeline-node:nth-child(even) .node-content:hover {
-            border-right-color: #ff7e30;
-        }
-        
-        /* Node connectors for even items */
-        .pipeline-node:nth-child(even) .node-connector {
-            transform: translateY(-50%) scaleX(-1);
         }
         
         /* Footer */
@@ -195,11 +195,36 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .pipeline-line {
-                display: none;
+                left: 40px;
+                right: 20px;
             }
             
             .pipeline-node {
                 margin-bottom: 40px;
+            }
+            
+            .node-connector {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .node-content {
+                margin-left: 80px !important;
+            }
+            
+            .pipeline-node:nth-child(even) .node-content {
+                margin-left: 80px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .pipeline-line {
+                display: none;
+            }
+            
+            .pipeline-node {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
             .node-connector {
@@ -212,14 +237,7 @@
             
             .node-content {
                 margin-left: 0 !important;
-                margin-right: 0 !important;
-                border-left: 6px solid #4a6ee0 !important;
-                border-right: none !important;
-            }
-            
-            .pipeline-node:nth-child(even) .node-content {
-                border-left: 6px solid #4a6ee0 !important;
-                border-right: none !important;
+                width: 100%;
             }
         }
     </style>
