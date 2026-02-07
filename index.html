@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI PAS - Workflow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4a6ee0;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 2.2rem;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        /* Pipeline Container */
+        .pipeline-container {
+            position: relative;
+            margin: 40px 0;
+        }
+        
+        /* Pipeline Line */
+        .pipeline-line {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            right: 50px;
+            height: 6px;
+            background: linear-gradient(90deg, #4a6ee0, #ff7e30);
+            transform: translateY(-50%);
+            z-index: 1;
+            border-radius: 3px;
+            box-shadow: 0 2px 8px rgba(74, 110, 224, 0.3);
+        }
+        
+        /* Pipeline Nodes */
+        .pipeline-node {
+            position: relative;
+            display: flex;
+            margin-bottom: 60px;
+            z-index: 2;
+        }
+        
+        .node-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #4a6ee0;
+            transition: all 0.4s ease;
+            flex: 1;
+            margin-left: 30px;
+        }
+        
+        .node-content:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            border-left-color: #ff7e30;
+        }
+        
+        /* Node Connectors */
+        .node-connector {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a6ee0;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+            border: 4px solid #4a6ee0;
+            transform: translateY(-50%);
+        }
+        
+        /* Step Numbers */
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #4a6ee0;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(74, 110, 224, 0.4);
+        }
+        
+        .node-content h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .node-content h3 i {
+            color: #4a6ee0;
+            font-size: 1.3rem;
+        }
+        
+        .node-content a {
+            display: inline-block;
+            color: #4a6ee0;
+            text-decoration: none;
+            padding: 10px 18px;
+            background-color: #f0f4ff;
+            border-radius: 6px;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            word-break: break-all;
+            border: 1px solid #dbe2ff;
+            font-size: 0.95rem;
+        }
+        
+        .node-content a:hover {
+            background-color: #4a6ee0;
+            color: white;
+        }
+        
+        .node-content .card-footer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Alternating node positions */
+        .pipeline-node:nth-child(even) .node-content {
+            margin-left: 0;
+            margin-right: 30px;
+            border-left: none;
+            border-right: 6px solid #4a6ee0;
+        }
+        
+        .pipeline-node:nth-child(even) .node-connector {
+            left: auto;
+            right: 0;
+        }
+        
+        .pipeline-node:nth-child(even) .node-content:hover {
+            border-right-color: #ff7e30;
+        }
+        
+        /* Node connectors for even items */
+        .pipeline-node:nth-child(even) .node-connector {
+            transform: translateY(-50%) scaleX(-1);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 25px;
+            border-top: 1px solid #e0e0e0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .pipeline-line {
+                display: none;
+            }
+            
+            .pipeline-node {
+                margin-bottom: 40px;
+            }
+            
+            .node-connector {
+                position: relative;
+                left: 0;
+                top: 0;
+                margin-bottom: 15px;
+                transform: none !important;
+            }
+            
+            .node-content {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                border-left: 6px solid #4a6ee0 !important;
+                border-right: none !important;
+            }
+            
+            .pipeline-node:nth-child(even) .node-content {
+                border-left: 6px solid #4a6ee0 !important;
+                border-right: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Agentic AI PAS Workflow - Demonstration</h1>
+            <p>Policy Administration System implementations for insurance underwriting</p>
+        </div>
+        
+        <div class="pipeline-container">
+            <!-- Pipeline line -->
+            <div class="pipeline-line"></div>
+            
+            <!-- Pipeline Step 1 -->
+            <div class="pipeline-node">
+                <div class="node-connector">
+                    <div class="step-number">1</div>
+                </div>
+                <div class="node-content">
+                    <h3><i class="fas fa-cogs"></i> Underwriting OS v4.2</h3>
+                    <a href="Underwriting OS v4.2" target="_blank">
+                        https://github.com/Ramsai170899/Agentic-AI-PAS/blob/main/Underwriting%20OS%20v4.2.html
+                    </a>
+                    <div class="card-footer">
+                        <i class="far fa-file-alt"></i> Latest underwriting operating system version
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Step 2 -->
+            <div class="pipeline-node">
+                <div class="node-connector">
+                    <div class="step-number">2</div>
+                </div>
+                <div class="node-content">
+                    <h3><i class="fas fa-heartbeat"></i> Life Insurance PAS</h3>
+                    <a href=Life insurance pas" target="_blank">
+                        https://github.com/Ramsai170899/Agentic-AI-PAS/blob/main/Life%20insurance%20pas.html
+                    </a>
+                    <div class="card-footer">
+                        <i class="fas fa-user-circle"></i> Life insurance policy administration system
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Step 3 -->
+            <div class="pipeline-node">
+                <div class="node-connector">
+                    <div class="step-number">3</div>
+                </div>
+                <div class="node-content">
+                    <h3><i class="fas fa-project-diagram"></i> Agentic AI PAS - Workflow</h3>
+                    <a href="Agentic PAS Workflow" target="_blank">
+                        https://github.com/Ramsai170899/Agentic-AI-PAS/blob/main/Agentic%20PAS%20Workflow.html
+                    </a>
+                    <div class="card-footer">
+                        <i class="fas fa-sitemap"></i> Core workflow implementation
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Step 4 -->
+            <div class="pipeline-node">
+                <div class="node-connector">
+                    <div class="step-number">4</div>
+                </div>
+                <div class="node-content">
+                    <h3><i class="fas fa-shield-alt"></i> Aegis Underwriting PAS</h3>
+                    <a href="Aegis_Underwriting_PAS" target="_blank">
+                        https://github.com/Ramsai170899/Agentic-AI-PAS/blob/main/Aegis_Underwriting_PAS.html
+                    </a>
+                    <div class="card-footer">
+                        <i class="fas fa-lock"></i> Secure underwriting system
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Step 5 -->
+            <div class="pipeline-node">
+                <div class="node-connector">
+                    <div class="step-number">5</div>
+                </div>
+                <div class="node-content">
+                    <h3><i class="fas fa-robot"></i> Agentic AI Automated PAS</h3>
+                    <a href="autonomous" target="_blank">
+                        https://github.com/Ramsai170899/Agentic-AI-PAS/blob/main/autonomous.html
+                    </a>
+                    <div class="card-footer">
+                        <i class="fas fa-magic"></i> Autonomous policy administration system
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Agentic AI PAS Workflow Links | Repository: <a href="https://github.com/Ramsai170899/Agentic-AI-PAS" target="_blank" style="color: #4a6ee0;">https://github.com/Ramsai170899/Agentic-AI-PAS</a></p>
+        </div>
+    </div>
+</body>
+</html>
