@@ -26,5 +26,8 @@ The final navigation tab "6. Issue" is highlighted and also marked with a pulsin
 
 
 
+
+
 GIVE ME STEP-1 INDEPTH AND COMPLETE EXCALIDRAW CODE NOT MISSING ANY DETAIL. ONLY STEP-1 COMPLETE.
+
 Donot miss the proper Excalidraw file structure.
